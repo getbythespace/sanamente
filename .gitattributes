@@ -1,0 +1,8 @@
+# Normaliza finales de línea a LF
+* text=auto
+
+# Configura reglas específicas para ciertos archivos
+*.sh text eol=lf
+*.bat text eol=crlf
+*.txt text eol=lf
+*.md text eol=lf

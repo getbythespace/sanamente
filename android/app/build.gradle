@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.sanamente"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 33 // Usa la última versión del SDK estable para asegurar compatibilidad
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -20,20 +20,18 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.example.sanamente"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        
+        // Configuraciones recomendadas para Firebase y dependencias modernas
+        minSdk = 24 // Firebase y muchas dependencias modernas requieren al menos API 24
+        targetSdk = 33 // Asegura que uses la última versión compatible del SDK
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+            // Configuración para builds de producción
             signingConfig = signingConfigs.debug
         }
     }

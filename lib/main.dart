@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'screens/registro_screen.dart'; // Importa la pantalla de registro
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,23 +21,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const HomeScreen(),
-    );
-  }
-}
-
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Bienvenido a Firebase'),
-      ),
-      body: const Center(
-        child: Text('Firebase configurado correctamente'),
-      ),
+      home:  RegistroScreen(), // Cambiar la pantalla inicial
     );
   }
 }

@@ -18,10 +18,20 @@ dependencies:
   firebase_auth: ^4.8.0
   # Firestore para almacenamiento de datos
   cloud_firestore: ^4.8.0
+
+  # provider 
+  provider: ^6.0.0
+
   # Paquete para manejar archivos .env
   flutter_dotenv: ^5.2.1
   # Otros paquetes útiles
   cupertino_icons: ^1.0.8
+
+  #device preview
+  device_preview: ^1.0.0
+
+  ## logger
+  logger: ^1.1.0
 
 dev_dependencies:
   flutter_test:

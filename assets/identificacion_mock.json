@@ -1,0 +1,23 @@
+[
+    {
+      "rut": "123456789",
+      "nombres": "Juan",
+      "apellidos": "Pérez",
+      "email": "juan.perez@example.com",
+      "tipoUsuario": "paciente",
+      "celular": "123456789",
+      "psicologoAsignado": null,
+      "campus": "Central"
+    },
+    {
+      "rut": "987654321",
+      "nombres": "María",
+      "apellidos": "Gómez",
+      "email": "maria.gomez@example.com",
+      "tipoUsuario": "psicologo",
+      "celular": "987654321",
+      "psicologoAsignado": null,
+      "campus": "Norte"
+    }
+  ]
+  

@@ -1,108 +1,107 @@
+// lib/services/auth_service.dart
+
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:logger/logger.dart';
 import '../models/usuario.dart';
+import '../repositories/identificacion_repository.dart';
+import 'package:flutter/foundation.dart';
+
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final Logger _logger = Logger();
+  final IdentificacionRepository _repository;
+  final FirebaseAuth _firebaseAuth;
 
-  // Registro de usuario
+  AuthService(this._repository) : _firebaseAuth = FirebaseAuth.instance;
+
+  // Stream que emite el usuario actual
+  Stream<Usuario?> get user {
+    return _firebaseAuth.authStateChanges().asyncMap((firebaseUser) async {
+      if (firebaseUser != null) {
+        final usuario = await _repository.obtenerUsuarioPorRut(firebaseUser.uid);
+        return usuario;
+      }
+      return null;
+    });
+  }
+
+ Future<Usuario?> signInWithRutAndPassword({
+  required String rut,
+  required String password,
+}) async {
+  try {
+    // Buscar usuario por RUT en el repositorio
+    final usuario = await _repository.obtenerUsuarioPorRut(rut);
+
+    if (usuario == null) {
+      debugPrint('No se encontró el usuario con RUT: $rut');
+      return null;
+    }
+
+    // Validar credenciales (Firebase Authentication)
+    UserCredential credenciales = await _firebaseAuth.signInWithEmailAndPassword(
+      email: usuario.email, // Usamos el email del usuario encontrado
+      password: password,
+    );
+
+    debugPrint('Inicio de sesión exitoso para UID: ${credenciales.user!.uid}');
+    return usuario;
+  } on FirebaseAuthException catch (e) {
+    debugPrint('Error en AuthService (signInWithRutAndPassword): ${e.code} - ${e.message}');
+    return null;
+  } catch (e) {
+    debugPrint('Error desconocido en AuthService (signInWithRutAndPassword): $e');
+    return null;
+  }
+}
+
+
+  // Método para registrar un nuevo usuario
   Future<Usuario?> registerWithEmailAndPassword({
+    required String email,
+    required String password,
+    required String rut,
     required String nombres,
     required String apellidos,
-    required String rut,
-    required String email,
-    required String password,
+    required String tipoUsuario,
     String? celular,
+    String? psicologoAsignado,
+    String? campus,
   }) async {
     try {
-      // Crear usuario en Firebase Auth
-      UserCredential result = await _auth.createUserWithEmailAndPassword(
-          email: email, password: password);
-      User? user = result.user;
+      UserCredential credenciales = await _firebaseAuth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
-      if (user != null) {
-        // Verificar si el RUT está autorizado como psicólogo
-        bool isPsicologo = await _isRutAuthorized(rut);
+      Usuario usuario = Usuario(
+        uid: credenciales.user!.uid,
+        nombres: nombres,
+        apellidos: apellidos,
+        email: email,
+        tipoUsuario: tipoUsuario,
+        celular: celular,
+        psicologoAsignado: psicologoAsignado,
+        campus: campus,
+        rut: rut,
+      );
 
-        // Crear documento en Firestore
-        Usuario nuevoUsuario = Usuario(
-          uid: user.uid,
-          nombres: nombres,
-          apellidos: apellidos,
-          rut: rut,
-          email: email,
-          rol: isPsicologo ? 'psicologo' : 'paciente',
-          celular: celular,
-          psicologoAsignado: isPsicologo ? null : '', // Inicialmente sin asignar
-        );
+      // Guardar usuario en el repositorio
+      await _repository.saveUsuario(usuario);
 
-        await _firestore.collection('users').doc(user.uid).set(nuevoUsuario.toMap());
-
-        return nuevoUsuario;
-      } else {
-        return null;
-      }
+      return usuario;
+    } on FirebaseAuthException catch (e) {
+      debugPrint('Error en AuthService (registro): ${e.message}');
+      return null;
     } catch (e) {
-      _logger.e('Error en registro: $e');
+      debugPrint('Error desconocido en AuthService (registro): $e');
       return null;
     }
+    
   }
 
-  // Inicio de sesión
-  Future<Usuario?> signInWithEmailAndPassword({
-    required String email,
-    required String password,
-  }) async {
-    try {
-      UserCredential result = await _auth.signInWithEmailAndPassword(
-          email: email, password: password);
-      User? user = result.user;
-
-      if (user != null) {
-        // Obtener datos del usuario desde Firestore
-        DocumentSnapshot userDoc = await _firestore.collection('users').doc(user.uid).get();
-
-        if (userDoc.exists) {
-          return Usuario.fromMap(userDoc.data() as Map<String, dynamic>);
-        } else {
-          // Si el documento no existe, cerrar sesión
-          await signOut();
-          return null;
-        }
-      } else {
-        return null;
-      }
-    } catch (e) {
-      _logger.e('Error en inicio de sesión: $e');
-      return null;
-    }
-  }
-
-  // Cerrar sesión
+  // Método para cerrar sesión
   Future<void> signOut() async {
-    await _auth.signOut();
+    await _firebaseAuth.signOut();
   }
 
-  // Verificar si el RUT está autorizado como psicólogo
-  Future<bool> _isRutAuthorized(String rut) async {
-    try {
-      QuerySnapshot query = await _firestore
-          .collection('psicologos_autorizados')
-          .where('rut', isEqualTo: rut)
-          .get();
-
-      return query.docs.isNotEmpty;
-    } catch (e) {
-      _logger.e('Error al verificar RUT: $e');
-      return false;
-    }
-  }
-
-  // Stream para observar cambios en la autenticación
-  Stream<User?> get user {
-    return _auth.authStateChanges();
-  }
+  
 }

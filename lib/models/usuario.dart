@@ -1,47 +1,54 @@
 class Usuario {
   final String uid;
+  final String rut;
   final String nombres;
   final String apellidos;
-  final String rut;
   final String email;
-  final String rol;
-  final String? celular; // Opcional
-  final String? psicologoAsignado; // Para pacientes, nulo si no tienen psicólogo
+  final String tipoUsuario;
+  final String? celular;
+  final String? psicologoAsignado;
+  final String? campus;
 
   Usuario({
     required this.uid,
+    required this.rut,
     required this.nombres,
     required this.apellidos,
-    required this.rut,
     required this.email,
-    required this.rol,
+    required this.tipoUsuario,
     this.celular,
     this.psicologoAsignado,
+    this.campus,
   });
 
-  factory Usuario.fromMap(Map<String, dynamic> map) {
-    return Usuario(
-      uid: map['uid'],
-      nombres: map['nombres'],
-      apellidos: map['apellidos'],
-      rut: map['rut'],
-      email: map['email'],
-      rol: map['rol'],
-      celular: map['celular'],
-      psicologoAsignado: map['psicologoAsignado'],
-    );
-  }
-
+  // Serializar a Map
   Map<String, dynamic> toMap() {
     return {
       'uid': uid,
+      'rut': rut,
       'nombres': nombres,
       'apellidos': apellidos,
-      'rut': rut,
       'email': email,
-      'rol': rol,
+      'tipoUsuario': tipoUsuario,
       'celular': celular,
       'psicologoAsignado': psicologoAsignado,
+      'campus': campus,
     };
   }
+
+  // Deserializar desde Map
+  factory Usuario.fromMap(Map<String, dynamic> map) {
+    return Usuario(
+      uid: map['uid'],
+      rut: map['rut'],
+      nombres: map['nombres'],
+      apellidos: map['apellidos'],
+      email: map['email'],
+      tipoUsuario: map['tipoUsuario'],
+      celular: map['celular'],
+      psicologoAsignado: map['psicologoAsignado'],
+      campus: map['campus'],
+    );
+  }
 }
+

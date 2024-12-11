@@ -1,5 +1,3 @@
-// lib/main.dart
-
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
@@ -21,7 +19,7 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
 
-    // Decide si usar Mock o Real IdentificacionRepository
+    // Mock o Real IdentificacionRepository
     const bool usarMock = false; // Cambia a true para usar MockIdentificacionRepository
 
     runApp(
@@ -39,7 +37,7 @@ void main() async {
                 context.read<IdentificacionRepository>(),
               ),
             ),
-            // Agrega otros providers aquí si es necesario
+            
           ],
           child: const MyApp(),
         ),
@@ -63,7 +61,7 @@ class MyApp extends StatelessWidget {
       home: const HomeScreen(), // Widget inicial
       routes: {
         '/login': (context) => const LoginScreen(),
-        '/registro': (context) => const RegistroScreen(), // Usar const si es posible
+        '/registro': (context) => const RegistroScreen(), 
         '/home': (context) => const HomeScreen(),
       },
       builder: DevicePreview.appBuilder, // Builder para Device Preview

@@ -1,5 +1,3 @@
-// lib/repositories/real_encuesta_repository.dart
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/encuesta.dart';
 import 'encuesta_repository.dart';

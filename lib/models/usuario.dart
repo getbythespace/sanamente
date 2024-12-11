@@ -1,5 +1,3 @@
-// lib/models/usuario.dart
-
 import 'rol.dart'; // Mantener solo los imports necesarios
 import 'carrera.dart'; // Importar el modelo Carrera
 

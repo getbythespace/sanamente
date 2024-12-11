@@ -55,8 +55,8 @@ class AuthService {
           celular: celular,
           psicologoAsignado: psicologoAsignado,
           campus: campus,
-          carrera: carrera, // Asignar carrera
-          edad: edad, // Asignar edad
+          carrera: carrera, 
+          edad: edad, 
         );
 
         // Guardar usuario en la base de datos
@@ -67,7 +67,7 @@ class AuthService {
         return null;
       }
     } catch (e) {
-      // Puedes agregar un manejo de errores más específico aquí si lo deseas
+      
       rethrow;
     }
   }
@@ -91,7 +91,7 @@ class AuthService {
         return null;
       }
     } catch (e) {
-      // Puedes agregar un manejo de errores más específico aquí si lo deseas
+      
       rethrow;
     }
   }

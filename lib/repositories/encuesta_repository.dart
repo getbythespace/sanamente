@@ -1,5 +1,3 @@
-// lib/repositories/encuesta_repository.dart
-
 import '../models/encuesta.dart';
 
 abstract class EncuestaRepository {

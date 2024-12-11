@@ -1,5 +1,3 @@
-// lib/models/encuesta.dart
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Encuesta {

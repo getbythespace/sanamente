@@ -1,5 +1,3 @@
-// lib/screens/home_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
@@ -37,7 +35,7 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
             body: Center(
-              child: Text('Tu rol es: ${usuario.rol.name}'), // Reemplazar 'tipoUsuario' con 'rol.name'
+              child: Text('Tu rol es: ${usuario.rol.name}'), 
             ),
           );
         }

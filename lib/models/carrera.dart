@@ -1,5 +1,3 @@
-// lib/models/carrera.dart
-
 enum Sede {
   concepcion,
   chillan,

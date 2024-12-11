@@ -1,5 +1,3 @@
-// lib/repositories/identificacion_repository.dart
-
 import '../models/usuario.dart';
 
 abstract class IdentificacionRepository {

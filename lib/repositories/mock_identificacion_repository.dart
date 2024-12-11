@@ -1,5 +1,3 @@
-// lib/repositories/mock_identificacion_repository.dart
-
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 import 'identificacion_repository.dart';

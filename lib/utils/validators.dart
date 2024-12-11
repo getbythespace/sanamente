@@ -1,5 +1,3 @@
-// lib/utils/validators.dart
-
 import 'package:flutter/foundation.dart'; // Import necesario para debugPrint
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../repositories/identificacion_repository.dart';

@@ -1,5 +1,3 @@
-// lib/repositories/real_identificacion_repository.dart
-
 import 'package:flutter/foundation.dart'; // Import necesario para debugPrint
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'identificacion_repository.dart';
@@ -26,7 +24,7 @@ class RealIdentificacionRepository implements IdentificacionRepository {
       return null;
     } catch (e) {
       debugPrint('Error al obtener usuario por RUT: $e');
-      rethrow; // Usar 'rethrow' para preservar la pila
+      rethrow;  
     }
   }
 
@@ -43,7 +41,7 @@ class RealIdentificacionRepository implements IdentificacionRepository {
       return null;
     } catch (e) {
       debugPrint('Error al obtener usuario por UID: $e');
-      rethrow; // Usar 'rethrow' para preservar la pila
+      rethrow;  
     }
   }
 

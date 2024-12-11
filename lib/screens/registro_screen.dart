@@ -1,14 +1,12 @@
-// lib/screens/registro_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
-import '../models/rol.dart'; // Importar el enum Rol
-import '../models/carrera.dart'; // Importar el modelo Carrera
-import '../utils/validators.dart'; // Importar el validador
+import '../models/rol.dart'; // enum Rol
+import '../models/carrera.dart'; // Carrera
+import '../utils/validators.dart'; //validador
 
 class RegistroScreen extends StatefulWidget {
-  const RegistroScreen({super.key}); // Constructor 'const'
+  const RegistroScreen({super.key}); // Constructor
 
   @override
   State<RegistroScreen> createState() => _RegistroScreenState();
@@ -22,7 +20,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController celularController = TextEditingController();
   final TextEditingController edadController =
-      TextEditingController(); // Nuevo controlador para edad
+      TextEditingController(); //controlador para edad
 
   Sede? _sedeSeleccionada; // Variable para sede seleccionada
   Carrera? _carreraSeleccionada; // Variable para carrera seleccionada
@@ -149,7 +147,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
     emailController.dispose();
     passwordController.dispose();
     celularController.dispose();
-    edadController.dispose(); // Disponer el controlador de edad
+    edadController.dispose(); 
     super.dispose();
   }
 

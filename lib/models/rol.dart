@@ -1,5 +1,3 @@
-// lib/models/rol.dart
-
 enum Rol { paciente, psicologo, admin }
 
 extension RolExtension on Rol {

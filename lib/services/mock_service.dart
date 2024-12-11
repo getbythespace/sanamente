@@ -1,5 +1,6 @@
 // lib/services/mock_service.dart
 import 'package:sanamente/models/usuario.dart';
+import '../models/rol.dart'; // Asegurarse de importar el enum Rol
 
 class MockService {
   // Simula una base de datos de la universidad
@@ -8,7 +9,7 @@ class MockService {
       'rut': '12345678',
       'nombres': 'Juan',
       'apellidos': 'Pérez',
-      'tipo_usuario': 'psicologo',
+      'rol': 'psicologo', // Reemplazar 'tipo_usuario' con 'rol'
       'correo': 'juan.perez@universidad.cl',
       'campus': 'Santiago',
     },
@@ -16,7 +17,7 @@ class MockService {
       'rut': '87654321',
       'nombres': 'María',
       'apellidos': 'Gómez',
-      'tipo_usuario': 'paciente',
+      'rol': 'paciente', // Reemplazar 'tipo_usuario' con 'rol'
       'correo': 'maria.gomez@universidad.cl',
       'campus': 'Valparaíso',
     },
@@ -37,7 +38,7 @@ class MockService {
       'rut': usuario.rut.toString(),
       'nombres': usuario.nombres,
       'apellidos': usuario.apellidos,
-      'tipo_usuario': usuario.tipoUsuario,
+      'rol': usuario.rol.name, // Asignar rol como String
       'correo': usuario.email,
       'campus': usuario.campus ?? '',
       // Agrega otros campos si es necesario

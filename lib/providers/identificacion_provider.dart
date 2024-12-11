@@ -9,10 +9,31 @@ class IdentificacionProvider with ChangeNotifier {
 
   IdentificacionProvider(this._repository);
 
-  Future<void> registrarUsuario(Usuario usuario) async {
-    await _repository.saveUsuario(usuario);
-    notifyListeners();
+  // Método para registrar usuario
+  Future<String?> registerUsuario(Usuario usuario, String password) async {
+    try {
+      // Verificar unicidad del RUT
+      bool isUnique = await _repository.isRutUnique(usuario.rut);
+      if (!isUnique) {
+        return 'El RUT ya está registrado.';
+      }
+
+      // Guardar usuario en Firebase Auth y Firestore
+      await _repository.saveUsuario(usuario);
+      notifyListeners();
+      return null; // Registro exitoso
+    } catch (e) {
+      return e.toString();
+    }
   }
 
-  // Si estabas llamando a 'registrarUsuario' desde otros lugares, asegúrate de que este método exista
+  // Método para obtener usuario por RUT
+  Future<Usuario?> getUsuarioByRut(String rut) async {
+    return await _repository.obtenerUsuarioPorRut(rut);
+  }
+
+  // Método para obtener usuario por UID
+  Future<Usuario?> getUsuarioByUid(String uid) async {
+    return await _repository.obtenerUsuarioPorUid(uid);
+  }
 }

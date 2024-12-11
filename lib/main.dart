@@ -1,8 +1,9 @@
+// lib/main.dart
+
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'package:device_preview/device_preview.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Asegúrate de importar Firebase Firestore
 import 'firebase_options.dart';
 import 'screens/registro_screen.dart';
 import 'screens/login_screen.dart';
@@ -11,6 +12,7 @@ import 'services/auth_service.dart';
 import 'repositories/identificacion_repository.dart';
 import 'repositories/mock_identificacion_repository.dart';
 import 'repositories/real_identificacion_repository.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Import necesario
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,20 +22,22 @@ void main() async {
     );
 
     // Decide si usar Mock o Real IdentificacionRepository
-    const bool usarMock = true; // Cambia a false para usar RealIdentificacionRepository
+    const bool usarMock = false; // Cambia a true para usar MockIdentificacionRepository
 
     runApp(
       DevicePreview(
-        enabled: true, // Cambia a false para producción
+        enabled: false, // Cambia a true para desarrollo
         builder: (context) => MultiProvider(
           providers: [
             Provider<IdentificacionRepository>(
               create: (_) => usarMock
                   ? MockIdentificacionRepository()
-                  : RealIdentificacionRepository(FirebaseFirestore.instance), // Pasar Firestore aquí
+                  : RealIdentificacionRepository(FirebaseFirestore.instance), // Pasa FirebaseFirestore.instance
             ),
             Provider<AuthService>(
-              create: (context) => AuthService(context.read<IdentificacionRepository>()),
+              create: (context) => AuthService(
+                context.read<IdentificacionRepository>(),
+              ),
             ),
             // Agrega otros providers aquí si es necesario
           ],
@@ -59,7 +63,7 @@ class MyApp extends StatelessWidget {
       home: const HomeScreen(), // Widget inicial
       routes: {
         '/login': (context) => const LoginScreen(),
-        '/registro': (context) => RegistroScreen(), // No usar const si RegistroScreen tiene lógica interna
+        '/registro': (context) => const RegistroScreen(), // Usar const si es posible
         '/home': (context) => const HomeScreen(),
       },
       builder: DevicePreview.appBuilder, // Builder para Device Preview

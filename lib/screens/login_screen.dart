@@ -1,6 +1,9 @@
+// lib/screens/login_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
+import '../utils/validators.dart'; // Importar el validador
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -10,45 +13,73 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // Controladores y variables de estado
-  final TextEditingController _rutController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
 
   void _login() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor, completa todos los campos.')),
+      );
+      return;
+    }
+
+    if (!validarEmail(email)) { // Usando validarEmail
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Correo electrónico inválido.')),
+      );
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
 
     final authService = Provider.of<AuthService>(context, listen: false);
 
-    final rut = _rutController.text.trim();
-    final password = _passwordController.text.trim();
-
-    final user = await authService.signInWithRutAndPassword(
-      rut: rut,
-      password: password,
-    );
-
-    // Verificar si el widget aún está montado antes de usar el contexto
-    if (!mounted) return;
-
-    setState(() {
-      _isLoading = false;
-    });
-
-    if (user != null) {
-      debugPrint('Inicio de sesión exitoso para el usuario: ${user.nombres}');
-      Navigator.pushReplacementNamed(context, '/home');
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error al iniciar sesión')),
+    try {
+      final usuario = await authService.signInWithEmailAndPassword(
+        email: email,
+        password: password,
       );
+
+      if (usuario != null) {
+        debugPrint('Inicio de sesión exitoso para el usuario: ${usuario.nombres}');
+        if (!mounted) return;
+        Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error al iniciar sesión')),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al iniciar sesión: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
   void _navigateToRegister() {
     Navigator.pushNamed(context, '/registro');
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 
   @override
@@ -61,10 +92,12 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               TextField(
-                controller: _rutController,
-                decoration: const InputDecoration(labelText: 'RUT'),
+                controller: _emailController,
+                decoration: const InputDecoration(labelText: 'Correo Electrónico'),
+                keyboardType: TextInputType.emailAddress,
               ),
               TextField(
                 controller: _passwordController,

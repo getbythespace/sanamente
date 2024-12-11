@@ -1,13 +1,20 @@
+// lib/models/usuario.dart
+
+import 'rol.dart'; // Mantener solo los imports necesarios
+import 'carrera.dart'; // Importar el modelo Carrera
+
 class Usuario {
   final String uid;
   final String rut;
   final String nombres;
   final String apellidos;
   final String email;
-  final String tipoUsuario;
+  final Rol rol;
   final String? celular;
   final String? psicologoAsignado;
   final String? campus;
+  final String carrera; // Nuevo campo
+  final int edad; // Nuevo campo
 
   Usuario({
     required this.uid,
@@ -15,28 +22,14 @@ class Usuario {
     required this.nombres,
     required this.apellidos,
     required this.email,
-    required this.tipoUsuario,
+    required this.rol,
     this.celular,
     this.psicologoAsignado,
     this.campus,
+    required this.carrera, // Requerido
+    required this.edad, // Requerido
   });
 
-  // Serializar a Map
-  Map<String, dynamic> toMap() {
-    return {
-      'uid': uid,
-      'rut': rut,
-      'nombres': nombres,
-      'apellidos': apellidos,
-      'email': email,
-      'tipoUsuario': tipoUsuario,
-      'celular': celular,
-      'psicologoAsignado': psicologoAsignado,
-      'campus': campus,
-    };
-  }
-
-  // Deserializar desde Map
   factory Usuario.fromMap(Map<String, dynamic> map) {
     return Usuario(
       uid: map['uid'],
@@ -44,11 +37,28 @@ class Usuario {
       nombres: map['nombres'],
       apellidos: map['apellidos'],
       email: map['email'],
-      tipoUsuario: map['tipoUsuario'],
+      rol: Rol.values.firstWhere((e) => e.name == map['rol']),
       celular: map['celular'],
       psicologoAsignado: map['psicologoAsignado'],
       campus: map['campus'],
+      carrera: map['carrera'], // Nuevo campo
+      edad: map['edad'], // Nuevo campo
     );
   }
-}
 
+  Map<String, dynamic> toMap() {
+    return {
+      'uid': uid,
+      'rut': rut,
+      'nombres': nombres,
+      'apellidos': apellidos,
+      'email': email,
+      'rol': rol.name,
+      'celular': celular,
+      'psicologoAsignado': psicologoAsignado,
+      'campus': campus,
+      'carrera': carrera, // Nuevo campo
+      'edad': edad, // Nuevo campo
+    };
+  }
+}

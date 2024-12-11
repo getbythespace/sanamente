@@ -1,3 +1,5 @@
+// lib/models/encuesta.dart
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Encuesta {
@@ -21,7 +23,7 @@ class Encuesta {
     return Encuesta(
       id: map['id'],
       usuarioId: map['usuarioId'],
-      fecha: (map['fecha'] as Timestamp).toDate(), // Corrección aquí
+      fecha: (map['fecha'] as Timestamp).toDate(),
       bienestar: map['bienestar'],
       motivacion: map['motivacion'],
       comentario: map['comentario'],
@@ -32,7 +34,7 @@ class Encuesta {
     return {
       'id': id,
       'usuarioId': usuarioId,
-      'fecha': fecha.toIso8601String(),
+      'fecha': fecha, // Firestore puede manejar DateTime directamente
       'bienestar': bienestar,
       'motivacion': motivacion,
       'comentario': comentario,

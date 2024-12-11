@@ -2,106 +2,102 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/usuario.dart';
+import '../models/rol.dart';
 import '../repositories/identificacion_repository.dart';
-import 'package:flutter/foundation.dart';
-
 
 class AuthService {
-  final IdentificacionRepository _repository;
-  final FirebaseAuth _firebaseAuth;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final IdentificacionRepository _identificacionRepository;
 
-  AuthService(this._repository) : _firebaseAuth = FirebaseAuth.instance;
+  AuthService(this._identificacionRepository);
 
-  // Stream que emite el usuario actual
+  /// Stream para el estado del usuario
   Stream<Usuario?> get user {
-    return _firebaseAuth.authStateChanges().asyncMap((firebaseUser) async {
-      if (firebaseUser != null) {
-        final usuario = await _repository.obtenerUsuarioPorRut(firebaseUser.uid);
-        return usuario;
-      }
-      return null;
+    return _auth.authStateChanges().asyncMap((User? firebaseUser) async {
+      if (firebaseUser == null) return null;
+      // Obtén los datos adicionales del usuario desde Firestore
+      final usuario = await _identificacionRepository.obtenerUsuarioPorUid(firebaseUser.uid);
+      return usuario;
     });
   }
 
- Future<Usuario?> signInWithRutAndPassword({
-  required String rut,
-  required String password,
-}) async {
-  try {
-    // Buscar usuario por RUT en el repositorio
-    final usuario = await _repository.obtenerUsuarioPorRut(rut);
-
-    if (usuario == null) {
-      debugPrint('No se encontró el usuario con RUT: $rut');
-      return null;
-    }
-
-    // Validar credenciales (Firebase Authentication)
-    UserCredential credenciales = await _firebaseAuth.signInWithEmailAndPassword(
-      email: usuario.email, // Usamos el email del usuario encontrado
-      password: password,
-    );
-
-    debugPrint('Inicio de sesión exitoso para UID: ${credenciales.user!.uid}');
-    return usuario;
-  } on FirebaseAuthException catch (e) {
-    debugPrint('Error en AuthService (signInWithRutAndPassword): ${e.code} - ${e.message}');
-    return null;
-  } catch (e) {
-    debugPrint('Error desconocido en AuthService (signInWithRutAndPassword): $e');
-    return null;
-  }
-}
-
-
-  // Método para registrar un nuevo usuario
+  /// Método para registrar con correo y contraseña
   Future<Usuario?> registerWithEmailAndPassword({
     required String email,
     required String password,
     required String rut,
     required String nombres,
     required String apellidos,
-    required String tipoUsuario,
+    required Rol rol,
     String? celular,
     String? psicologoAsignado,
-    String? campus,
+    required String campus,
+    required String carrera, // Nuevo parámetro
+    required int edad, // Nuevo parámetro
   }) async {
     try {
-      UserCredential credenciales = await _firebaseAuth.createUserWithEmailAndPassword(
+      // Crear usuario en Firebase Auth
+      UserCredential result = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
+      User? user = result.user;
 
-      Usuario usuario = Usuario(
-        uid: credenciales.user!.uid,
-        nombres: nombres,
-        apellidos: apellidos,
-        email: email,
-        tipoUsuario: tipoUsuario,
-        celular: celular,
-        psicologoAsignado: psicologoAsignado,
-        campus: campus,
-        rut: rut,
-      );
+      if (user != null) {
+        // Crear objeto Usuario con los nuevos campos
+        Usuario nuevoUsuario = Usuario(
+          uid: user.uid,
+          rut: rut,
+          nombres: nombres,
+          apellidos: apellidos,
+          email: email,
+          rol: rol,
+          celular: celular,
+          psicologoAsignado: psicologoAsignado,
+          campus: campus,
+          carrera: carrera, // Asignar carrera
+          edad: edad, // Asignar edad
+        );
 
-      // Guardar usuario en el repositorio
-      await _repository.saveUsuario(usuario);
+        // Guardar usuario en la base de datos
+        await _identificacionRepository.saveUsuario(nuevoUsuario);
 
-      return usuario;
-    } on FirebaseAuthException catch (e) {
-      debugPrint('Error en AuthService (registro): ${e.message}');
-      return null;
+        return nuevoUsuario;
+      } else {
+        return null;
+      }
     } catch (e) {
-      debugPrint('Error desconocido en AuthService (registro): $e');
-      return null;
+      // Puedes agregar un manejo de errores más específico aquí si lo deseas
+      rethrow;
     }
-    
   }
 
-  // Método para cerrar sesión
+  /// Método para iniciar sesión con correo y contraseña
+  Future<Usuario?> signInWithEmailAndPassword({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      UserCredential result = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      User? user = result.user;
+
+      if (user != null) {
+        Usuario? usuario = await _identificacionRepository.obtenerUsuarioPorUid(user.uid);
+        return usuario;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      // Puedes agregar un manejo de errores más específico aquí si lo deseas
+      rethrow;
+    }
+  }
+
+  /// Método para cerrar sesión
   Future<void> signOut() async {
-    await _firebaseAuth.signOut();
+    await _auth.signOut();
   }
-
-  
 }

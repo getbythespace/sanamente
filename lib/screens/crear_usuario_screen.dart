@@ -1,21 +1,25 @@
-// lib/screens/registro_screen.dart
+// lib/screens/crear_usuario_screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../services/auth_service.dart';
 import '../models/rol.dart';
 import '../models/carrera.dart';
+import '../models/usuario.dart';
+import '../services/admin_service.dart';
 import '../utils/extensions.dart';
 import '../utils/validators.dart';
 
-class RegistroScreen extends StatefulWidget {
-  const RegistroScreen({Key? key}) : super(key: key);
+class CrearUsuarioScreen extends StatefulWidget {
+  final Rol? rol;
+  
+
+  const CrearUsuarioScreen({Key? key, this.rol}) : super(key: key);
 
   @override
-  State<RegistroScreen> createState() => _RegistroScreenState();
+  State<CrearUsuarioScreen> createState() => _CrearUsuarioScreenState();
 }
 
-class _RegistroScreenState extends State<RegistroScreen> {
+class _CrearUsuarioScreenState extends State<CrearUsuarioScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nombresController = TextEditingController();
   final TextEditingController _apellidosController = TextEditingController();
@@ -25,7 +29,6 @@ class _RegistroScreenState extends State<RegistroScreen> {
   final TextEditingController _celularController = TextEditingController();
   final TextEditingController _edadController = TextEditingController();
 
-  Rol? _selectedRol;
   Sede? _selectedSede;
   Carrera? _selectedCarrera;
 
@@ -39,11 +42,20 @@ class _RegistroScreenState extends State<RegistroScreen> {
     }
   }
 
-  void _register() async {
+  void _crearUsuario() async {
     if (_formKey.currentState!.validate()) {
-      if (_selectedRol == null) {
+      String nombres = _nombresController.text.trim();
+      String apellidos = _apellidosController.text.trim();
+      String rut = _rutController.text.trim();
+      String email = _emailController.text.trim();
+      String password = _passwordController.text.trim();
+      String celular = _celularController.text.trim();
+      String edadTexto = _edadController.text.trim();
+
+      int? edad = int.tryParse(edadTexto);
+      if (edad == null || edad < 18 || edad > 100) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Por favor, selecciona un rol.')),
+          const SnackBar(content: Text('Edad inválida. Debe ser entre 18 y 100 años.')),
         );
         return;
       }
@@ -53,29 +65,31 @@ class _RegistroScreenState extends State<RegistroScreen> {
       });
 
       try {
-        final authService = Provider.of<AuthService>(context, listen: false);
-        await authService.registerWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-          rut: _rutController.text.trim(),
-          nombres: _nombresController.text.trim(),
-          apellidos: _apellidosController.text.trim(),
-          rol: _selectedRol!,
-          celular: _celularController.text.trim().isNotEmpty ? _celularController.text.trim() : null,
+        final adminService = Provider.of<AdminService>(context, listen: false);
+        final nuevoUsuario = Usuario(
+          uid: '', // Será generado por Firebase
+          rut: rut,
+          nombres: nombres,
+          apellidos: apellidos,
+          email: email,
+          rol: widget.rol ?? Rol.paciente,
+          celular: celular.isNotEmpty ? celular : null,
           psicologoAsignado: null,
           campus: _selectedSede == Sede.concepcion ? 'Concepción' : 'Chillán',
           carrera: _selectedCarrera!.nombre,
-          edad: int.parse(_edadController.text.trim()),
+          edad: edad,
         );
+
+        await adminService.crearUsuario(nuevoUsuario, password);
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Registro exitoso.')),
+          SnackBar(content: Text('Usuario ${nuevoUsuario.nombres} creado exitosamente.')),
         );
 
-        Navigator.pushReplacementNamed(context, '/home');
+        Navigator.pop(context);
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al registrar: $e')),
+          SnackBar(content: Text('Error al crear usuario: $e')),
         );
       } finally {
         if (mounted) {
@@ -101,9 +115,11 @@ class _RegistroScreenState extends State<RegistroScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Rol? rol = ModalRoute.of(context)?.settings.arguments as Rol?;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Registro'),
+        title: Text('Crear ${rol?.name.capitalize() ?? 'Usuario'}'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -118,7 +134,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
                   decoration: const InputDecoration(labelText: 'Nombres'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor, ingresa tus nombres.';
+                      return 'Por favor, ingresa los nombres.';
                     }
                     return null;
                   },
@@ -130,7 +146,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
                   decoration: const InputDecoration(labelText: 'Apellidos'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor, ingresa tus apellidos.';
+                      return 'Por favor, ingresa los apellidos.';
                     }
                     return null;
                   },
@@ -143,7 +159,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
                   keyboardType: TextInputType.text,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor, ingresa tu RUT.';
+                      return 'Por favor, ingresa el RUT.';
                     }
                     if (!validarRut(value)) {
                       return 'RUT inválido.';
@@ -159,7 +175,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor, ingresa tu edad.';
+                      return 'Por favor, ingresa la edad.';
                     }
                     int? edad = int.tryParse(value);
                     if (edad == null || edad < 18 || edad > 100) {
@@ -176,7 +192,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor, ingresa tu correo electrónico.';
+                      return 'Por favor, ingresa el correo electrónico.';
                     }
                     if (!validarEmail(value)) {
                       return 'Correo electrónico inválido.';
@@ -206,29 +222,6 @@ class _RegistroScreenState extends State<RegistroScreen> {
                   controller: _celularController,
                   decoration: const InputDecoration(labelText: 'Celular (opcional)'),
                   keyboardType: TextInputType.phone,
-                ),
-                const SizedBox(height: 16),
-                // Selección de Rol
-                DropdownButtonFormField<Rol>(
-                  value: _selectedRol,
-                  decoration: const InputDecoration(labelText: 'Rol'),
-                  items: Rol.values.map((Rol rol) {
-                    return DropdownMenuItem<Rol>(
-                      value: rol,
-                      child: Text(rol.name.capitalize()),
-                    );
-                  }).toList(),
-                  onChanged: (Rol? newRol) {
-                    setState(() {
-                      _selectedRol = newRol;
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null) {
-                      return 'Por favor, selecciona un rol.';
-                    }
-                    return null;
-                  },
                 ),
                 const SizedBox(height: 16),
                 // Selección de Sede
@@ -278,12 +271,12 @@ class _RegistroScreenState extends State<RegistroScreen> {
                   },
                 ),
                 const SizedBox(height: 32),
-                // Botón de Registro
+                // Botón de Crear
                 _isLoading
                     ? const CircularProgressIndicator()
                     : ElevatedButton(
-                        onPressed: _register,
-                        child: const Text('Registrarse'),
+                        onPressed: _crearUsuario,
+                        child: const Text('Crear Usuario'),
                       ),
               ],
             ),

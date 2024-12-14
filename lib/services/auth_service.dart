@@ -16,9 +16,18 @@ class AuthService {
     return _auth.authStateChanges().asyncMap((User? firebaseUser) async {
       if (firebaseUser == null) return null;
       // Obtén los datos adicionales del usuario desde Firestore
-      final usuario = await _identificacionRepository.obtenerUsuarioPorUid(firebaseUser.uid);
+      final usuario = await _identificacionRepository
+          .obtenerUsuarioPorUid(firebaseUser.uid);
       return usuario;
     });
+  }
+
+  /// Getter para el usuario actual (síncrono)
+  Future<Usuario?> get currentUser async {
+    User? firebaseUser = _auth.currentUser;
+    if (firebaseUser == null) return null;
+    return await _identificacionRepository
+        .obtenerUsuarioPorUid(firebaseUser.uid);
   }
 
   /// Método para registrar con correo y contraseña
@@ -55,8 +64,8 @@ class AuthService {
           celular: celular,
           psicologoAsignado: psicologoAsignado,
           campus: campus,
-          carrera: carrera, 
-          edad: edad, 
+          carrera: carrera,
+          edad: edad,
         );
 
         // Guardar usuario en la base de datos
@@ -67,7 +76,6 @@ class AuthService {
         return null;
       }
     } catch (e) {
-      
       rethrow;
     }
   }
@@ -85,13 +93,13 @@ class AuthService {
       User? user = result.user;
 
       if (user != null) {
-        Usuario? usuario = await _identificacionRepository.obtenerUsuarioPorUid(user.uid);
+        Usuario? usuario =
+            await _identificacionRepository.obtenerUsuarioPorUid(user.uid);
         return usuario;
       } else {
         return null;
       }
     } catch (e) {
-      
       rethrow;
     }
   }
@@ -99,5 +107,47 @@ class AuthService {
   /// Método para cerrar sesión
   Future<void> signOut() async {
     await _auth.signOut();
+  }
+
+  /// Método para actualizar perfil (email y celular)
+  Future<void> updateUserProfile(
+      {required String email, required String celular}) async {
+    User? user = _auth.currentUser;
+    if (user != null) {
+      await user.verifyBeforeUpdateEmail(email);
+      // Actualizar en Firestore
+      Usuario? usuario =
+          await _identificacionRepository.obtenerUsuarioPorUid(user.uid);
+      if (usuario != null) {
+        Usuario updatedUser = Usuario(
+          uid: usuario.uid,
+          rut: usuario.rut,
+          nombres: usuario.nombres,
+          apellidos: usuario.apellidos,
+          email: email,
+          rol: usuario.rol,
+          celular: celular,
+          psicologoAsignado: usuario.psicologoAsignado,
+          campus: usuario.campus,
+          carrera: usuario.carrera,
+          edad: usuario.edad,
+        );
+        await _identificacionRepository.saveUsuario(updatedUser);
+      }
+    }
+  }
+
+  /// Método para actualizar la contraseña
+  Future<void> updatePassword(
+      {required String currentPassword, required String newPassword}) async {
+    User? user = _auth.currentUser;
+    if (user != null) {
+      // Re-autenticar al usuario
+      AuthCredential credential = EmailAuthProvider.credential(
+          email: user.email!, password: currentPassword);
+      await user.reauthenticateWithCredential(credential);
+      // Actualizar contraseña
+      await user.updatePassword(newPassword);
+    }
   }
 }

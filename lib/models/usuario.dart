@@ -1,5 +1,6 @@
-import 'rol.dart'; // Mantener solo los imports necesarios
-import 'carrera.dart'; // Importar el modelo Carrera
+// lib\models\usuario.dart
+import 'rol.dart';
+import 'sede.dart';
 
 class Usuario {
   final String uid;
@@ -10,9 +11,9 @@ class Usuario {
   final Rol rol;
   final String? celular;
   final String? psicologoAsignado;
-  final String? campus;
-  final String carrera; // Nuevo campo
-  final int edad; // Nuevo campo
+  final String campus;
+  final String carrera;
+  final int edad;
 
   Usuario({
     required this.uid,
@@ -23,24 +24,24 @@ class Usuario {
     required this.rol,
     this.celular,
     this.psicologoAsignado,
-    this.campus,
-    required this.carrera, // Requerido
-    required this.edad, // Requerido
+    required this.campus,
+    required this.carrera,
+    required this.edad,
   });
 
-  factory Usuario.fromMap(Map<String, dynamic> map) {
+  factory Usuario.fromMap(Map<String, dynamic> data) {
     return Usuario(
-      uid: map['uid'],
-      rut: map['rut'],
-      nombres: map['nombres'],
-      apellidos: map['apellidos'],
-      email: map['email'],
-      rol: Rol.values.firstWhere((e) => e.name == map['rol']),
-      celular: map['celular'],
-      psicologoAsignado: map['psicologoAsignado'],
-      campus: map['campus'],
-      carrera: map['carrera'], // Nuevo campo
-      edad: map['edad'], // Nuevo campo
+      uid: data['uid'] ?? '',
+      rut: data['rut'] ?? '',
+      nombres: data['nombres'] ?? '',
+      apellidos: data['apellidos'] ?? '',
+      email: data['email'] ?? '',
+      rol: RolExtension.fromString(data['rol']) ?? Rol.paciente,
+      celular: data['celular'],
+      psicologoAsignado: data['psicologoAsignado'],
+      campus: data['campus'] ?? '',
+      carrera: data['carrera'] ?? '',
+      edad: data['edad'] ?? 0,
     );
   }
 
@@ -55,8 +56,8 @@ class Usuario {
       'celular': celular,
       'psicologoAsignado': psicologoAsignado,
       'campus': campus,
-      'carrera': carrera, // Nuevo campo
-      'edad': edad, // Nuevo campo
+      'carrera': carrera,
+      'edad': edad,
     };
   }
 }

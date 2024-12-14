@@ -37,6 +37,20 @@ dependencies:
   #provider
   provider: ^6.0.5
 
+  ## fl chart
+  fl_chart: ^0.69.2
+
+  ## FLUTTER LOCAL NOTIFICAIONES
+  flutter_local_notifications: ^12.0.4
+
+  ##TIMEZONE
+
+  timezone: ^0.9.0
+
+  ##table calendar
+  table_calendar: ^3.0.9
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

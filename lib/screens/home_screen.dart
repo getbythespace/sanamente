@@ -1,8 +1,15 @@
+// lib/screens/home_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
+import '../models/rol.dart';
+import 'login_screen.dart';
+import 'paciente_screen.dart';
+import 'psicologo_screen.dart';
+import 'admin_screen.dart';
 import '../models/usuario.dart';
-import 'login_screen.dart'; // Importar LoginScreen
+
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -21,23 +28,19 @@ class HomeScreen extends StatelessWidget {
             return const LoginScreen();
           }
 
-          // Usuario está autenticado, muestra la pantalla de inicio
-          return Scaffold(
-            appBar: AppBar(
-              title: Text('Bienvenido, ${usuario.nombres}'),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.logout),
-                  onPressed: () {
-                    authService.signOut();
-                  },
-                ),
-              ],
-            ),
-            body: Center(
-              child: Text('Tu rol es: ${usuario.rol.name}'), 
-            ),
-          );
+          // Redirigir según el rol
+          switch (usuario.rol) {
+            case Rol.paciente:
+              return const PacienteScreen();
+            case Rol.psicologo:
+              return const PsicologoScreen();
+            case Rol.admin:
+              return const AdminScreen();
+            default:
+              return const Scaffold(
+                body: Center(child: Text('Rol desconocido')),
+              );
+          }
         }
 
         // Estado de conexión

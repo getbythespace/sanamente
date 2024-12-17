@@ -1,5 +1,3 @@
-// lib/screens/pool_pacientes_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/usuario.dart';
@@ -10,8 +8,7 @@ class PoolPacientesScreen extends StatelessWidget {
   const PoolPacientesScreen({Key? key}) : super(key: key);
 
   void _vincularPaciente(BuildContext context, Usuario paciente) async {
-    final psicologo =
-        await Provider.of<AuthService>(context, listen: false).currentUser;
+    final psicologo = await Provider.of<AuthService>(context, listen: false).currentUser;
     if (psicologo == null) return;
 
     bool? confirm = await showDialog<bool>(
@@ -36,12 +33,18 @@ class PoolPacientesScreen extends StatelessWidget {
     if (confirm == true) {
       final pacienteService =
           Provider.of<PacienteService>(context, listen: false);
-      await pacienteService.vincularPsicologo(paciente.uid, psicologo.uid);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content:
-                Text('Paciente ${paciente.nombres} vinculado exitosamente.')),
-      );
+      try {
+        await pacienteService.vincularPsicologo(paciente.uid, psicologo.uid);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content:
+                  Text('Paciente ${paciente.nombres} vinculado exitosamente.')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al vincular paciente: $e')),
+        );
+      }
     }
   }
 
@@ -72,14 +75,33 @@ class PoolPacientesScreen extends StatelessWidget {
           itemBuilder: (context, index) {
             final paciente = pacientes[index];
             return Card(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: ListTile(
-                leading: const Icon(Icons.person),
+                leading: const Icon(Icons.person, size: 40),
                 title: Text('${paciente.nombres} ${paciente.apellidos}'),
-                subtitle: Text('Carrera: ${paciente.carrera}'),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Carrera: ${paciente.carrera}'),
+                    Text('Edad: ${paciente.edad}'),
+                    if (paciente.celular != null)
+                      Text('Celular: ${paciente.celular}'),
+                    Text('Campus: ${paciente.campus}'),
+                  ],
+                ),
+                isThreeLine: true,
                 trailing: IconButton(
                   icon: const Icon(Icons.add),
                   onPressed: () => _vincularPaciente(context, paciente),
+                  tooltip: 'Vincular Paciente',
                 ),
+                onTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    '/perfil_paciente',
+                    arguments: paciente, 
+                  );
+                },
               ),
             );
           },

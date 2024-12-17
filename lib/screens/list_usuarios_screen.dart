@@ -1,100 +1,134 @@
-// lib/screens/list_usuarios_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/rol.dart';
 import '../models/usuario.dart';
 import '../services/admin_service.dart';
-import 'editar_usuario_screen.dart';
 
-class ListUsuariosScreen extends StatelessWidget {
+class ListUsuariosScreen extends StatefulWidget {
   final Rol rol;
+  const ListUsuariosScreen({required this.rol, super.key});
 
-  const ListUsuariosScreen({Key? key, required this.rol}) : super(key: key);
+  @override
+  State<ListUsuariosScreen> createState() => _ListUsuariosScreenState();
+}
 
-  void _editarUsuario(BuildContext context, Usuario usuario) {
-    Navigator.pushNamed(
-      context,
-      '/editar_usuario',
-      arguments: usuario,
-    );
-  }
-
-  void _eliminarUsuario(BuildContext context, Usuario usuario) async {
-    bool? confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Eliminar Usuario'),
-        content: Text('¿Estás seguro de eliminar a ${usuario.nombres} ${usuario.apellidos}?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Eliminar'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm == true) {
-      final adminService = Provider.of<AdminService>(context, listen: false);
-      await adminService.eliminarUsuario(usuario.uid);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Usuario ${usuario.nombres} eliminado exitosamente.')),
-      );
-    }
-  }
-
+class _ListUsuariosScreenState extends State<ListUsuariosScreen> {
   @override
   Widget build(BuildContext context) {
     final adminService = Provider.of<AdminService>(context, listen: false);
 
     return FutureBuilder<List<Usuario>>(
-      future: adminService.getUsuariosByRol(rol),
+      future: adminService.getUsuariosByRol(widget.rol),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
-        }
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text('No hay ${widget.rol.name}s disponibles.'));
+        } else {
+          final usuarios = snapshot.data!;
+          return RefreshIndicator(
+            onRefresh: () async {
+              setState(() {}); // Refresca la lista
+            },
+            child: ListView.builder(
+              itemCount: usuarios.length,
+              itemBuilder: (context, index) {
+                final usuario = usuarios[index];
+                return Card(
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  elevation: 4,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Nombre y Apellido
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              '${usuario.nombres} ${usuario.apellidos}',
+                              style: const TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            Row(
+                              children: [
+                                // Botón de Editar
+                                IconButton(
+                                  icon: const Icon(Icons.edit),
+                                  onPressed: () {
+                                    Navigator.pushNamed(
+                                      context,
+                                      '/editar_usuario',
+                                      arguments: usuario,
+                                    );
+                                  },
+                                  tooltip: 'Editar Usuario',
+                                ),
+                                // Botón de Eliminar
+                                IconButton(
+                                  icon: const Icon(Icons.delete),
+                                  onPressed: () async {
+                                    bool confirm = await showDialog(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: const Text('Confirmar Eliminación'),
+                                        content: const Text('¿Estás seguro de eliminar este usuario?'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () => Navigator.pop(context, false),
+                                            child: const Text('Cancelar'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () => Navigator.pop(context, true),
+                                            child: const Text('Eliminar'),
+                                          ),
+                                        ],
+                                      ),
+                                    );
 
-        if (snapshot.hasError) {
-          return const Center(child: Text('Error al cargar usuarios.'));
-        }
-
-        final usuarios = snapshot.data ?? [];
-
-        if (usuarios.isEmpty) {
-          return const Center(child: Text('No hay usuarios registrados.'));
-        }
-
-        return ListView.builder(
-          itemCount: usuarios.length,
-          itemBuilder: (context, index) {
-            final usuario = usuarios[index];
-            return Card(
-              child: ListTile(
-                leading: const Icon(Icons.person),
-                title: Text('${usuario.nombres} ${usuario.apellidos}'),
-                subtitle: Text('Correo: ${usuario.email}'),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit),
-                      onPressed: () => _editarUsuario(context, usuario),
+                                    if (confirm) {
+                                      try {
+                                        await adminService.eliminarUsuario(usuario.uid);
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text('Usuario eliminado exitosamente.')),
+                                        );
+                                        setState(() {}); // Refresca la lista tras eliminar
+                                      } catch (e) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(content: Text('Error al eliminar usuario: $e')),
+                                        );
+                                      }
+                                    }
+                                  },
+                                  tooltip: 'Eliminar Usuario',
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        // Detalles del Usuario
+                        Text('Correo Electrónico: ${usuario.email}'),
+                        Text('RUT: ${usuario.rut}'),
+                        Text('Edad: ${usuario.edad}'),
+                        if (usuario.celular != null && usuario.celular!.isNotEmpty)
+                          Text('Celular: ${usuario.celular}'),
+                        Text('Campus: ${usuario.campus}'),
+                        if (usuario.carrera.isNotEmpty)
+                          Text('Carrera: ${usuario.carrera}'),
+                        if (usuario.psicologoAsignado != null && usuario.psicologoAsignado!.isNotEmpty)
+                          Text('Psicólogo Asignado: ${usuario.psicologoAsignado}'),
+                      ],
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: () => _eliminarUsuario(context, usuario),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
+                  ),
+                );
+              },
+            ),
+          );
+        }
       },
     );
   }

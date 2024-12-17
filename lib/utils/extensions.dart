@@ -1,5 +1,6 @@
-// lib/utils/extensions.dart
-
-extension StringCasingExtension on String {
-  String capitalize() => '${this[0].toUpperCase()}${substring(1)}';
+extension StringExtension on String {
+  String capitalize() {
+    if (isEmpty) return this;
+    return this[0].toUpperCase() + substring(1).toLowerCase();
+  }
 }

@@ -1,13 +1,12 @@
-// lib/screens/grafico_detallado_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/encuesta_service.dart';
 import '../models/encuesta.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../models/usuario.dart';
 import '../services/auth_service.dart';
+import '../widgets/mood_chart_syncfusion.dart';
+import 'package:intl/intl.dart'; 
 
 class GraficoDetalladoScreen extends StatefulWidget {
   const GraficoDetalladoScreen({Key? key}) : super(key: key);
@@ -28,31 +27,67 @@ class _GraficoDetalladoScreenState extends State<GraficoDetalladoScreen> {
   }
 
   void _loadEncuestas() async {
-    final encuestaService = Provider.of<EncuestaService>(context, listen: false);
+    final encuestaService =
+        Provider.of<EncuestaService>(context, listen: false);
     final authService = Provider.of<AuthService>(context, listen: false);
     final Usuario? usuario = await authService.currentUser;
 
     if (usuario != null) {
-      // Obtener todas las encuestas del mes actual
-      DateTime firstDayOfMonth = DateTime(_focusedMonth.year, _focusedMonth.month, 1);
-      DateTime lastDayOfMonth = DateTime(_focusedMonth.year, _focusedMonth.month + 1, 0);
+      DateTime firstDayOfMonth =
+          DateTime(_focusedMonth.year, _focusedMonth.month, 1);
+      DateTime lastDayOfMonth =
+          DateTime(_focusedMonth.year, _focusedMonth.month + 1, 0);
 
-      List<Encuesta> encuestas = await encuestaService.getEncuestasByDateRange(
-        usuario.uid,
-        firstDayOfMonth,
-        lastDayOfMonth,
-      );
+      debugPrint(
+          'Cargando encuestas para el usuario: ${usuario.uid} con psicólogo: ${usuario.psicologoAsignado}');
+      debugPrint(
+          'Rango de fechas: ${firstDayOfMonth.toIso8601String()} - ${lastDayOfMonth.toIso8601String()}');
 
-      setState(() {
-        _encuestas = encuestas;
-      });
+      try {
+        List<Encuesta> encuestas =
+            await encuestaService.getEncuestasByDateRange(
+          usuarioId: usuario.uid,
+          psicologoId: usuario.psicologoAsignado ?? '',
+          start: firstDayOfMonth,
+          end: lastDayOfMonth,
+        );
+
+        debugPrint('Encuestas obtenidas antes de filtrar: ${encuestas.length}');
+        
+        encuestas = encuestas.where((e) {
+          return e.bienestar >= 0 && e.bienestar <= 10;
+        }).toList();
+        debugPrint('Encuestas después de filtrar: ${encuestas.length}');
+
+        setState(() {
+          _encuestas = encuestas;
+        });
+
+        
+        for (final encuesta in encuestas) {
+          debugPrint(
+              'Encuesta: bienestar=${encuesta.bienestar}, fecha=${encuesta.fecha}');
+        }
+      } catch (e, stackTrace) {
+        debugPrint('Error al cargar encuestas: $e');
+        debugPrint('StackTrace: $stackTrace');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al cargar encuestas: $e')),
+        );
+        setState(() {
+          _encuestas = [];
+        });
+      }
+    } else {
+      debugPrint('Usuario actual es null');
+      
+      Navigator.pushReplacementNamed(context, '/login');
     }
   }
 
   void _onMonthChanged(DateTime newMonth) {
     setState(() {
       _focusedMonth = newMonth;
-      _selectedDay = newMonth;
     });
     _loadEncuestas();
   }
@@ -68,23 +103,29 @@ class _GraficoDetalladoScreenState extends State<GraficoDetalladoScreen> {
       orElse: () => Encuesta(
         id: '',
         usuarioId: '',
+        psicologoId: '', 
         fecha: selectedDay,
         bienestar: 0,
+        motivacion: null,
+        comentario: null,
       ),
     );
 
     if (encuesta.id.isNotEmpty) {
-      // Mostrar detalles de la encuesta
+      
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Detalles del ${selectedDay.toLocal().toString().split(' ')[0]}'),
+          title: Text(
+              'Detalles del ${DateFormat('yyyy-MM-dd').format(selectedDay)}'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text('Bienestar: ${encuesta.bienestar}'),
-              if (encuesta.motivacion != null) Text('Motivación: ${encuesta.motivacion}'),
-              if (encuesta.comentario != null) Text('Comentario: ${encuesta.comentario}'),
+              if (encuesta.motivacion != null)
+                Text('Motivación: ${encuesta.motivacion}'),
+              if (encuesta.comentario != null)
+                Text('Comentario: ${encuesta.comentario}'),
             ],
           ),
           actions: [
@@ -106,15 +147,9 @@ class _GraficoDetalladoScreenState extends State<GraficoDetalladoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Procesar datos para el gráfico
-    List<FlSpot> spots = [];
-    for (int i = 0; i < _encuestas.length; i++) {
-      spots.add(FlSpot(i.toDouble(), _encuestas[i].bienestar.toDouble()));
-    }
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gráfico Anímico General'),
+        title: const Text('Gráfico Anímico Detallado'),
       ),
       body: Column(
         children: [
@@ -126,73 +161,56 @@ class _GraficoDetalladoScreenState extends State<GraficoDetalladoScreen> {
                 icon: const Icon(Icons.arrow_back),
                 onPressed: () {
                   setState(() {
-                    _focusedMonth = DateTime(_focusedMonth.year, _focusedMonth.month - 1, 1);
+                    _focusedMonth = DateTime(
+                        _focusedMonth.year, _focusedMonth.month - 1, 1);
                   });
                   _onMonthChanged(_focusedMonth);
                 },
               ),
               Text(
                 '${_focusedMonth.month}/${_focusedMonth.year}',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               IconButton(
                 icon: const Icon(Icons.arrow_forward),
                 onPressed: () {
                   setState(() {
-                    _focusedMonth = DateTime(_focusedMonth.year, _focusedMonth.month + 1, 1);
+                    _focusedMonth = DateTime(
+                        _focusedMonth.year, _focusedMonth.month + 1, 1);
                   });
                   _onMonthChanged(_focusedMonth);
                 },
               ),
             ],
           ),
-          // Gráfico Anímico
-          Expanded(
-            flex: 2,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: LineChart(
-                LineChartData(
-                  gridData: FlGridData(show: true),
-                  titlesData: FlTitlesData(
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    leftTitles: AxisTitles(
-                      sideTitles: SideTitles(showTitles: true),
+          // Gráfico Anímico con Syncfusion
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: _encuestas.isNotEmpty
+                ? SizedBox(
+                    height: 300, // Proporcionar una altura fija
+                    child: MoodChartSyncfusion(encuestas: _encuestas),
+                  )
+                : const SizedBox(
+                    height: 300, // Proporcionar una altura fija
+                    child: Center(
+                      child: Text(
+                        'No hay datos para mostrar el gráfico.',
+                        style: TextStyle(color: Colors.red, fontSize: 16),
+                      ),
                     ),
                   ),
-                  borderData: FlBorderData(show: true),
-                  minX: 0,
-                  maxX: _encuestas.length > 0 ? (_encuestas.length - 1).toDouble() : 1,
-                  minY: 0,
-                  maxY: 10,
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: spots,
-                      isCurved: true,
-                      barWidth: 3,
-                      color: Colors.blue,
-                      dotData: FlDotData(show: true),
-                    ),
-                  ],
-                ),
-              ),
-            ),
           ),
           // Calendario
           Expanded(
-            flex: 3,
             child: TableCalendar(
               firstDay: DateTime.utc(2020, 1, 1),
               lastDay: DateTime.utc(2030, 12, 31),
               focusedDay: _focusedMonth,
               selectedDayPredicate: (day) => isSameDay(day, _selectedDay),
               onDaySelected: _onDaySelected,
-              onPageChanged: (focusedDay) {
-                _focusedMonth = focusedDay;
-                _onMonthChanged(_focusedMonth);
-              },
+              onPageChanged: _onMonthChanged,
               calendarBuilders: CalendarBuilders(
                 markerBuilder: (context, date, events) {
                   final encuesta = _encuestas.firstWhere(
@@ -200,8 +218,11 @@ class _GraficoDetalladoScreenState extends State<GraficoDetalladoScreen> {
                     orElse: () => Encuesta(
                       id: '',
                       usuarioId: '',
+                      psicologoId: '', // Proporcionar 'psicologoId'
                       fecha: date,
                       bienestar: 0,
+                      motivacion: null,
+                      comentario: null,
                     ),
                   );
 

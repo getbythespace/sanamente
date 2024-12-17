@@ -1,5 +1,3 @@
-// lib/models/sede.dart
-
 enum Sede {
   concepcion,
   chillan,

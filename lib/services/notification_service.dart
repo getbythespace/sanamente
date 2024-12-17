@@ -1,5 +1,3 @@
-// lib/services/notification_service.dart
-
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -34,7 +32,7 @@ class NotificationService {
     final User? user = _auth.currentUser;
     if (user == null) return;
 
-    // Guardar el horario en Firestore
+    // Guardar el horario 
     await _firestore.collection('users').doc(user.uid).update({
       'horarioNotificacion': {
         'hora': time.hour,

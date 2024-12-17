@@ -1,5 +1,3 @@
-// lib/widgets/latest_entries.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/encuesta.dart';

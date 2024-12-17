@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart'; // Import necesario para debugPrint
+import 'package:flutter/foundation.dart'; 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../repositories/identificacion_repository.dart';
 import '../models/usuario.dart';
@@ -51,7 +51,7 @@ bool validarRut(String rut) {
   }
 }
 
-// Añadir la función validarEmail
+// validarEmail
 bool validarEmail(String email) {
   final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
   return emailRegex.hasMatch(email);

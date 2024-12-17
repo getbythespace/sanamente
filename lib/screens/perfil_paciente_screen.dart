@@ -1,5 +1,3 @@
-// lib/screens/perfil_paciente_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/usuario.dart';
@@ -8,7 +6,7 @@ import '../services/encuesta_service.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../services/auth_service.dart';
-
+import 'package:intl/intl.dart'; 
 
 class PerfilPacienteScreen extends StatefulWidget {
   final Usuario paciente;
@@ -34,15 +32,25 @@ class _PerfilPacienteScreenState extends State<PerfilPacienteScreen> {
     DateTime firstDayOfMonth = DateTime(_focusedMonth.year, _focusedMonth.month, 1);
     DateTime lastDayOfMonth = DateTime(_focusedMonth.year, _focusedMonth.month + 1, 0);
 
-    List<Encuesta> encuestas = await encuestaService.getEncuestasByDateRange(
-      widget.paciente.uid,
-      firstDayOfMonth,
-      lastDayOfMonth,
-    );
+    try {
+      List<Encuesta> encuestas = await encuestaService.getEncuestasByDateRange(
+        usuarioId: widget.paciente.uid,
+        psicologoId: widget.paciente.psicologoAsignado ?? '',
+        start: firstDayOfMonth,
+        end: lastDayOfMonth,
+      );
 
-    setState(() {
-      _encuestas = encuestas;
-    });
+      setState(() {
+        _encuestas = encuestas;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al cargar encuestas: $e')),
+      );
+      setState(() {
+        _encuestas = [];
+      });
+    }
   }
 
   void _onMonthChanged(DateTime newMonth) {
@@ -59,6 +67,11 @@ class _PerfilPacienteScreenState extends State<PerfilPacienteScreen> {
     for (int i = 0; i < _encuestas.length; i++) {
       spots.add(FlSpot(i.toDouble(), _encuestas[i].bienestar.toDouble()));
     }
+
+    bool hasValidData = spots.isNotEmpty &&
+        spots.length > 1 && 
+        spots.every((spot) => spot.y.isFinite) &&
+        spots.every((spot) => spot.x.isFinite);
 
     return Scaffold(
       appBar: AppBar(
@@ -90,33 +103,52 @@ class _PerfilPacienteScreenState extends State<PerfilPacienteScreen> {
           // Gráfico Anímico
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: LineChart(
-              LineChartData(
-                gridData: FlGridData(show: true),
-                titlesData: FlTitlesData(
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
+            child: hasValidData
+                ? SizedBox(
+                    height: 300, 
+                    child: LineChart(
+                      LineChartData(
+                        gridData: FlGridData(show: true),
+                        titlesData: FlTitlesData(
+                          bottomTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              getTitlesWidget: (value, meta) {
+                                
+                                return Text(''); // Vacío para simplificar
+                              },
+                            ),
+                          ),
+                          leftTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: true),
+                          ),
+                        ),
+                        borderData: FlBorderData(show: true),
+                        minX: 0,
+                        maxX: _encuestas.length > 1 ? (_encuestas.length - 1).toDouble() : 1,
+                        minY: 0,
+                        maxY: 10,
+                        lineBarsData: [
+                          LineChartBarData(
+                            spots: spots,
+                            isCurved: true,
+                            barWidth: 3,
+                            color: Colors.red,
+                            dotData: FlDotData(show: true),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : const SizedBox(
+                    height: 300, 
+                    child: Center(
+                      child: Text(
+                        'No hay datos válidos para el gráfico.',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
                   ),
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: true),
-                  ),
-                ),
-                borderData: FlBorderData(show: true),
-                minX: 0,
-                maxX: _encuestas.length > 0 ? (_encuestas.length - 1).toDouble() : 1,
-                minY: 0,
-                maxY: 10,
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: spots,
-                    isCurved: true,
-                    barWidth: 3,
-                    color: Colors.red,
-                    dotData: FlDotData(show: true),
-                  ),
-                ],
-              ),
-            ),
           ),
           // Calendario
           Expanded(
@@ -124,6 +156,7 @@ class _PerfilPacienteScreenState extends State<PerfilPacienteScreen> {
               firstDay: DateTime.utc(2020, 1, 1),
               lastDay: DateTime.utc(2030, 12, 31),
               focusedDay: _focusedMonth,
+              selectedDayPredicate: (day) => false,
               onPageChanged: _onMonthChanged,
               calendarBuilders: CalendarBuilders(
                 markerBuilder: (context, date, events) {
@@ -132,8 +165,11 @@ class _PerfilPacienteScreenState extends State<PerfilPacienteScreen> {
                     orElse: () => Encuesta(
                       id: '',
                       usuarioId: '',
+                      psicologoId: '', 
                       fecha: date,
                       bienestar: 0,
+                      motivacion: null,
+                      comentario: null,
                     ),
                   );
 
@@ -156,8 +192,11 @@ class _PerfilPacienteScreenState extends State<PerfilPacienteScreen> {
                   orElse: () => Encuesta(
                     id: '',
                     usuarioId: '',
+                    psicologoId: '', 
                     fecha: selectedDay,
                     bienestar: 0,
+                    motivacion: null,
+                    comentario: null,
                   ),
                 );
 
@@ -165,13 +204,15 @@ class _PerfilPacienteScreenState extends State<PerfilPacienteScreen> {
                   showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
-                      title: Text('Detalles del ${selectedDay.toLocal().toString().split(' ')[0]}'),
+                      title: Text('Detalles del ${DateFormat('yyyy-MM-dd').format(selectedDay)}'),
                       content: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text('Bienestar: ${encuesta.bienestar}'),
-                          if (encuesta.motivacion != null) Text('Motivación: ${encuesta.motivacion}'),
-                          if (encuesta.comentario != null) Text('Comentario: ${encuesta.comentario}'),
+                          if (encuesta.motivacion != null)
+                            Text('Motivación: ${encuesta.motivacion}'),
+                          if (encuesta.comentario != null)
+                            Text('Comentario: ${encuesta.comentario}'),
                         ],
                       ),
                       actions: [

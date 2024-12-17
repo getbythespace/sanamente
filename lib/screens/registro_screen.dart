@@ -1,12 +1,10 @@
-// lib/screens/registro_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
-import '../models/rol.dart';
-import '../models/carrera.dart';
-import '../utils/extensions.dart';
+import '../models/sede.dart' as sedeModelo; 
+import '../models/carrera.dart' as carreraModel;
 import '../utils/validators.dart';
+import '../models/rol.dart';
 
 class RegistroScreen extends StatefulWidget {
   const RegistroScreen({Key? key}) : super(key: key);
@@ -25,64 +23,128 @@ class _RegistroScreenState extends State<RegistroScreen> {
   final TextEditingController _celularController = TextEditingController();
   final TextEditingController _edadController = TextEditingController();
 
-  Rol? _selectedRol;
-  Sede? _selectedSede;
-  Carrera? _selectedCarrera;
+  sedeModelo.Sede? _selectedSede;
+  String? _selectedCarreraNombre;
 
   bool _isLoading = false;
 
-  List<Carrera> get _carrerasFiltradas {
-    if (_selectedSede == null) {
-      return [];
-    } else {
-      return carreras.where((carrera) => carrera.sede == _selectedSede).toList();
-    }
+  
+  final List<carreraModel.Carrera> carreras = [
+    
+carreraModel.Carrera(nombre: 'Arquitectura', sede: sedeModelo.Sede.concepcion),
+carreraModel.Carrera(nombre: 'Diseño Industrial', sede: sedeModelo.Sede.concepcion),
+carreraModel.Carrera(nombre: 'Ingeniería en Construcción', sede: sedeModelo.Sede.concepcion),
+carreraModel.Carrera(nombre: 'Programa de Bachillerato en Ciencias (Concepción)', sede: sedeModelo.Sede.concepcion),
+carreraModel.Carrera(nombre: 'Ingeniería Estadística', sede: sedeModelo.Sede.concepcion),
+carreraModel.Carrera(nombre: 'Contador Público y Auditor (Concepción)', sede: sedeModelo.Sede.concepcion),
+carreraModel.Carrera(nombre: 'Derecho Carrera Nueva', sede: sedeModelo.Sede.concepcion),
+carreraModel.Carrera(nombre: 'Ingeniería Civil en Informática (Concepción)', sede: sedeModelo.Sede.concepcion),
+carreraModel.Carrera(nombre: 'Ingeniería Comercial (Concepción)', sede: sedeModelo.Sede.concepcion),
+carreraModel.Carrera(nombre: 'Ingeniería de Ejecución en Computación e Informática', sede: sedeModelo.Sede.concepcion),
+carreraModel.Carrera(nombre: 'Trabajo Social (Concepción)', sede: sedeModelo.Sede.concepcion),
+carreraModel.Carrera(nombre: 'Ingeniería Civil', sede: sedeModelo.Sede.concepcion),
+carreraModel.Carrera(nombre: 'Ingeniería Civil Eléctrica', sede: sedeModelo.Sede.concepcion),
+carreraModel.Carrera(nombre: 'Ingeniería Civil en Automatización', sede: sedeModelo.Sede.concepcion),
+carreraModel.Carrera(nombre: 'Ingeniería Civil Industrial', sede: sedeModelo.Sede.concepcion),
+carreraModel.Carrera(nombre: 'Ingeniería Civil Mecánica', sede: sedeModelo.Sede.concepcion),
+carreraModel.Carrera(nombre: 'Ingeniería Civil Química', sede: sedeModelo.Sede.concepcion),
+carreraModel.Carrera(nombre: 'Ingeniería Eléctrica Carrera Nueva', sede: sedeModelo.Sede.concepcion),
+carreraModel.Carrera(nombre: 'Ingeniería Electrónica Carrera Nueva', sede: sedeModelo.Sede.concepcion),
+carreraModel.Carrera(nombre: 'Ingeniería Mecánica Carrera Nueva', sede: sedeModelo.Sede.concepcion),
+
+
+carreraModel.Carrera(nombre: 'Diseño Gráfico', sede: sedeModelo.Sede.chillan),
+carreraModel.Carrera(nombre: 'Programa de Bachillerato en Ciencias (Chillán)', sede: sedeModelo.Sede.chillan),
+carreraModel.Carrera(nombre: 'Ingeniería en Recursos Naturales', sede: sedeModelo.Sede.chillan),
+carreraModel.Carrera(nombre: 'Química y Farmacia', sede: sedeModelo.Sede.chillan),
+carreraModel.Carrera(nombre: 'Enfermería', sede: sedeModelo.Sede.chillan),
+carreraModel.Carrera(nombre: 'Fonoaudiología', sede: sedeModelo.Sede.chillan),
+carreraModel.Carrera(nombre: 'Ingeniería en Alimentos', sede: sedeModelo.Sede.chillan),
+carreraModel.Carrera(nombre: 'Medicina', sede: sedeModelo.Sede.chillan),
+carreraModel.Carrera(nombre: 'Nutrición y Dietética', sede: sedeModelo.Sede.chillan),
+carreraModel.Carrera(nombre: 'Contador Público y Auditor (Chillán)', sede: sedeModelo.Sede.chillan),
+carreraModel.Carrera(nombre: 'Ingeniería Civil en Informática (Chillán)', sede: sedeModelo.Sede.chillan),
+carreraModel.Carrera(nombre: 'Ingeniería Comercial (Chillán)', sede: sedeModelo.Sede.chillan),
+carreraModel.Carrera(nombre: 'Pedagogía en Castellano y Comunicación', sede: sedeModelo.Sede.chillan),
+carreraModel.Carrera(nombre: 'Pedagogía en Ciencias Naturales mención Biología o Física o Química', sede: sedeModelo.Sede.chillan),
+carreraModel.Carrera(nombre: 'Pedagogía en Educación Especial con mención en Dificultades Específicas del Aprendizaje', sede: sedeModelo.Sede.chillan),
+carreraModel.Carrera(nombre: 'Pedagogía en Educación Física', sede: sedeModelo.Sede.chillan),
+carreraModel.Carrera(nombre: 'Pedagogía en Educación General Básica con mención en Lenguaje y Comunicación o Educación Matemática', sede: sedeModelo.Sede.chillan),
+carreraModel.Carrera(nombre: 'Pedagogía en Educación Matemática', sede: sedeModelo.Sede.chillan),
+carreraModel.Carrera(nombre: 'Pedagogía en Educación Parvularia Mención Didáctica en Primera Infancia', sede: sedeModelo.Sede.chillan),
+carreraModel.Carrera(nombre: 'Pedagogía en Historia y Geografía', sede: sedeModelo.Sede.chillan),
+carreraModel.Carrera(nombre: 'Pedagogía en Inglés', sede: sedeModelo.Sede.chillan),
+carreraModel.Carrera(nombre: 'Psicología', sede: sedeModelo.Sede.chillan),
+carreraModel.Carrera(nombre: 'Trabajo Social (Chillán)', sede: sedeModelo.Sede.chillan),
+
+  ];
+
+  
+  List<String> get _carrerasFiltradas {
+    if (_selectedSede == null) return [];
+    return carreras
+        .where((c) => c.sede == _selectedSede)
+        .map((c) => c.nombre)
+        .toList();
   }
 
-  void _register() async {
-    if (_formKey.currentState!.validate()) {
-      if (_selectedRol == null) {
+  Future<void> _register() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    
+    if (_selectedSede == null || _selectedCarreraNombre == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor, completa todos los campos.')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final authService = Provider.of<AuthService>(context, listen: false);
+      final edad = int.tryParse(_edadController.text.trim());
+
+      
+      if (edad == null || edad < 18 || edad > 100) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Por favor, selecciona un rol.')),
+          const SnackBar(content: Text('Edad inválida. Debe ser entre 18 y 100 años.')),
         );
+        setState(() => _isLoading = false);
         return;
       }
 
-      setState(() {
-        _isLoading = true;
-      });
+      // Registro default como paciente 
+      await authService.registerWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+        rut: _rutController.text.trim(),
+        nombres: _nombresController.text.trim(),
+        apellidos: _apellidosController.text.trim(),
+        rol: Rol.paciente, // Fijar rol como paciente
+        celular: _celularController.text.trim().isNotEmpty
+            ? _celularController.text.trim()
+            : null,
+        psicologoAsignado: null,
+        campus: _selectedSede == sedeModelo.Sede.concepcion ? 'Concepción' : 'Chillán',
+        carrera: _selectedCarreraNombre!,
+        edad: edad,
+      );
 
-      try {
-        final authService = Provider.of<AuthService>(context, listen: false);
-        await authService.registerWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-          rut: _rutController.text.trim(),
-          nombres: _nombresController.text.trim(),
-          apellidos: _apellidosController.text.trim(),
-          rol: _selectedRol!,
-          celular: _celularController.text.trim().isNotEmpty ? _celularController.text.trim() : null,
-          psicologoAsignado: null,
-          campus: _selectedSede == Sede.concepcion ? 'Concepción' : 'Chillán',
-          carrera: _selectedCarrera!.nombre,
-          edad: int.parse(_edadController.text.trim()),
-        );
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Registro exitoso.')),
-        );
-
-        Navigator.pushReplacementNamed(context, '/home');
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al registrar: $e')),
-        );
-      } finally {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-        }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Registro exitoso.')),
+      );
+      Navigator.pushReplacementNamed(context, '/home');
+    } catch (e) {
+      debugPrint('Error al registrar: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al registrar: ${e.toString()}')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
       }
     }
   }
@@ -92,10 +154,10 @@ class _RegistroScreenState extends State<RegistroScreen> {
     _nombresController.dispose();
     _apellidosController.dispose();
     _rutController.dispose();
+    _edadController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _celularController.dispose();
-    _edadController.dispose();
     super.dispose();
   }
 
@@ -103,7 +165,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Registro'),
+        title: const Text('Registro de Paciente'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -112,172 +174,155 @@ class _RegistroScreenState extends State<RegistroScreen> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                // Campo de Nombres
+                
+                const Text(
+                  'Estás registrándote como paciente. Si requieres otro rol, contacta al administrador.',
+                  style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+
+                // Campo Nombres
                 TextFormField(
                   controller: _nombresController,
-                  decoration: const InputDecoration(labelText: 'Nombres'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor, ingresa tus nombres.';
-                    }
-                    return null;
-                  },
+                  decoration: const InputDecoration(
+                    labelText: 'Nombres',
+                  ),
+                  validator: (value) =>
+                      (value == null || value.isEmpty) ? 'Ingresa tus nombres.' : null,
                 ),
                 const SizedBox(height: 16),
-                // Campo de Apellidos
+
+                // Campo Apellidos
                 TextFormField(
                   controller: _apellidosController,
-                  decoration: const InputDecoration(labelText: 'Apellidos'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor, ingresa tus apellidos.';
-                    }
-                    return null;
-                  },
+                  decoration: const InputDecoration(
+                    labelText: 'Apellidos',
+                  ),
+                  validator: (value) =>
+                      (value == null || value.isEmpty) ? 'Ingresa tus apellidos.' : null,
                 ),
                 const SizedBox(height: 16),
-                // Campo de RUT
+
+                // Campo RUT 
                 TextFormField(
                   controller: _rutController,
-                  decoration: const InputDecoration(labelText: 'RUT'),
-                  keyboardType: TextInputType.text,
+                  decoration: const InputDecoration(
+                    labelText: 'RUT',
+                    helperText: 'Formato: sin puntos ni guión (Ej: 12345678K)',
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor, ingresa tu RUT.';
+                      return 'Ingresa tu RUT.';
                     }
                     if (!validarRut(value)) {
-                      return 'RUT inválido.';
+                      return 'RUT inválido (usa sin puntos ni guión).';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 16),
-                // Campo de Edad
+
+                // Campo Edad
                 TextFormField(
                   controller: _edadController,
-                  decoration: const InputDecoration(labelText: 'Edad'),
+                  decoration: const InputDecoration(
+                    labelText: 'Edad',
+                  ),
                   keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor, ingresa tu edad.';
-                    }
-                    int? edad = int.tryParse(value);
-                    if (edad == null || edad < 18 || edad > 100) {
-                      return 'Edad inválida. Debe ser entre 18 y 100 años.';
-                    }
-                    return null;
-                  },
+                  validator: (value) =>
+                      (value == null || value.isEmpty) ? 'Ingresa tu edad.' : null,
                 ),
                 const SizedBox(height: 16),
-                // Campo de Correo Electrónico
+
+                // Campo Email
                 TextFormField(
                   controller: _emailController,
-                  decoration: const InputDecoration(labelText: 'Correo Electrónico'),
-                  keyboardType: TextInputType.emailAddress,
+                  decoration: const InputDecoration(
+                    labelText: 'Correo Electrónico',
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor, ingresa tu correo electrónico.';
+                      return 'Ingresa tu correo.';
                     }
                     if (!validarEmail(value)) {
-                      return 'Correo electrónico inválido.';
+                      return 'Correo inválido.';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 16),
-                // Campo de Contraseña
+
+                // Campo Contraseña
                 TextFormField(
                   controller: _passwordController,
-                  decoration: const InputDecoration(labelText: 'Contraseña'),
+                  decoration: const InputDecoration(
+                    labelText: 'Contraseña',
+                  ),
                   obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor, ingresa una contraseña.';
+                      return 'Ingresa una contraseña.';
                     }
                     if (value.length < 6) {
-                      return 'La contraseña debe tener al menos 6 caracteres.';
+                      return 'Debe tener al menos 6 caracteres.';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 16),
-                // Campo de Celular (Opcional)
+
+                // Campo Celular (opcional)
                 TextFormField(
                   controller: _celularController,
-                  decoration: const InputDecoration(labelText: 'Celular (opcional)'),
+                  decoration: const InputDecoration(
+                    labelText: 'Celular (opcional)',
+                  ),
                   keyboardType: TextInputType.phone,
                 ),
                 const SizedBox(height: 16),
-                // Selección de Rol
-                DropdownButtonFormField<Rol>(
-                  value: _selectedRol,
-                  decoration: const InputDecoration(labelText: 'Rol'),
-                  items: Rol.values.map((Rol rol) {
-                    return DropdownMenuItem<Rol>(
-                      value: rol,
-                      child: Text(rol.name.capitalize()),
-                    );
-                  }).toList(),
-                  onChanged: (Rol? newRol) {
-                    setState(() {
-                      _selectedRol = newRol;
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null) {
-                      return 'Por favor, selecciona un rol.';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                // Selección de Sede
-                DropdownButtonFormField<Sede>(
+
+                // Dropdown Sede
+                DropdownButtonFormField<sedeModelo.Sede>(
                   value: _selectedSede,
                   decoration: const InputDecoration(labelText: 'Sede'),
-                  items: Sede.values.map((Sede sede) {
-                    return DropdownMenuItem<Sede>(
-                      value: sede,
-                      child: Text(sede.name),
+                  items: sedeModelo.Sede.values.map((sedeValue) {
+                    return DropdownMenuItem<sedeModelo.Sede>(
+                      value: sedeValue,
+                      child: Text(sedeValue.name),
                     );
                   }).toList(),
-                  onChanged: (Sede? newSede) {
+                  onChanged: (sedeModelo.Sede? newSede) {
                     setState(() {
                       _selectedSede = newSede;
-                      _selectedCarrera = null;
+                      _selectedCarreraNombre = null; // Reset
                     });
                   },
-                  validator: (value) {
-                    if (value == null) {
-                      return 'Por favor, selecciona una sede.';
-                    }
-                    return null;
-                  },
+                  validator: (value) =>
+                      (value == null) ? 'Selecciona una sede.' : null,
                 ),
                 const SizedBox(height: 16),
-                // Selección de Carrera
-                DropdownButtonFormField<Carrera>(
-                  value: _selectedCarrera,
+
+                // Dropdown Carrera
+                DropdownButtonFormField<String>(
+                  value: _selectedCarreraNombre,
                   decoration: const InputDecoration(labelText: 'Carrera'),
-                  items: _carrerasFiltradas.map((Carrera carrera) {
-                    return DropdownMenuItem<Carrera>(
-                      value: carrera,
-                      child: Text(carrera.nombre),
+                  items: _carrerasFiltradas.map((nombre) {
+                    return DropdownMenuItem<String>(
+                      value: nombre,
+                      child: Text(nombre),
                     );
                   }).toList(),
-                  onChanged: (Carrera? newCarrera) {
+                  onChanged: (String? newCarrera) {
                     setState(() {
-                      _selectedCarrera = newCarrera;
+                      _selectedCarreraNombre = newCarrera;
                     });
                   },
-                  validator: (value) {
-                    if (_selectedSede != null && value == null) {
-                      return 'Por favor, selecciona una carrera.';
-                    }
-                    return null;
-                  },
+                  validator: (value) =>
+                      (value == null) ? 'Selecciona una carrera.' : null,
                 ),
                 const SizedBox(height: 32),
+
                 // Botón de Registro
                 _isLoading
                     ? const CircularProgressIndicator()

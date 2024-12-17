@@ -1,5 +1,3 @@
-// lib/screens/login_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
@@ -68,7 +66,8 @@ class _LoginScreenState extends State<LoginScreen> {
               // Campo de Correo Electrónico
               TextFormField(
                 controller: _emailController,
-                decoration: const InputDecoration(labelText: 'Correo Electrónico'),
+                decoration:
+                    const InputDecoration(labelText: 'Correo Electrónico'),
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
                   if (value == null || value.isEmpty) {

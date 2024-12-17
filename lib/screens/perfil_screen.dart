@@ -1,5 +1,3 @@
-// lib/screens/perfil_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/usuario.dart';
@@ -37,40 +35,86 @@ class _PerfilScreenState extends State<PerfilScreen> {
     }
   }
 
-  void _saveChanges() async {
-    if (_formKey.currentState!.validate()) {
-      final authService = Provider.of<AuthService>(context, listen: false);
-      final usuario = await authService.currentUser;
+  Future<String?> _showPasswordDialog(BuildContext context) async {
+  final TextEditingController passwordController = TextEditingController();
+  return await showDialog<String>(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text('Reautenticación requerida'),
+        content: TextField(
+          controller: passwordController,
+          obscureText: true,
+          decoration: const InputDecoration(
+            labelText: 'Contraseña actual',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); 
+            },
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(passwordController.text.trim());
+            },
+            child: const Text('Confirmar'),
+          ),
+        ],
+      );
+    },
+  );
+}
 
-      if (usuario == null) return;
 
-      // Actualizar email y celular
-      String email = _emailController.text.trim();
-      String celular = _celularController.text.trim();
+void _saveChanges() async {
+  if (_formKey.currentState!.validate()) {
+    final authService = Provider.of<AuthService>(context, listen: false);
 
-      try {
-        await authService.updateUserProfile(email: email, celular: celular);
+    final usuario = await authService.currentUser;
+    if (usuario == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No se encontró el usuario autenticado.')),
+      );
+      return;
+    }
 
-        // Actualizar contraseña si se proporcionó
-        if (_passwordController.text.isNotEmpty && _newPasswordController.text.isNotEmpty) {
-          await authService.updatePassword(
-            currentPassword: _passwordController.text.trim(),
-            newPassword: _newPasswordController.text.trim(),
-          );
-        }
+    // datos del formulario
+    String email = _emailController.text.trim();
+    String celular = _celularController.text.trim();
+    String currentPassword = _passwordController.text.trim();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Perfil actualizado exitosamente.')),
-        );
+    try {
+      // Actualizar perfil
+      await authService.updateUserProfile(
+        email: email,
+        celular: celular,
+        currentPassword: currentPassword,
+      );
 
-        Navigator.pop(context);
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al actualizar el perfil: $e')),
+      // Actualizar contraseña 
+      if (_newPasswordController.text.isNotEmpty) {
+        await authService.updatePassword(
+          currentPassword: currentPassword,
+          newPassword: _newPasswordController.text.trim(),
         );
       }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Perfil actualizado exitosamente.')),
+      );
+
+      Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al actualizar el perfil: $e')),
+      );
     }
   }
+}
+
 
   @override
   void dispose() {

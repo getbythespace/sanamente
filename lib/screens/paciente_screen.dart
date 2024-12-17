@@ -1,5 +1,3 @@
-// lib/screens/paciente_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/usuario.dart';
@@ -7,6 +5,8 @@ import '../services/auth_service.dart';
 import '../widgets/mood_chart.dart';
 import '../widgets/notification_schedule.dart';
 import '../widgets/latest_entries.dart';
+import '/screens/nuevo_animo_screen.dart';
+
 
 class PacienteScreen extends StatelessWidget {
   const PacienteScreen({super.key});
@@ -53,9 +53,13 @@ class PacienteScreen extends StatelessWidget {
                 children: [
                   // Gráfico de ánimo
                   MoodChart(
-                    data: [], // Reemplaza con tus datos reales
+                    usuario: usuario, 
                     onViewMore: () {
-                      Navigator.pushNamed(context, '/grafico_detallado');
+                      Navigator.pushNamed(
+                        context,
+                        '/grafico_detallado',
+                        arguments: usuario,
+                      );
                     },
                   ),
                   const SizedBox(height: 20),
@@ -70,7 +74,7 @@ class PacienteScreen extends StatelessWidget {
             floatingActionButton: FloatingActionButton(
               onPressed: () {
                 // Acción para registrar nuevo ánimo
-                Navigator.pushNamed(context, '/nuevo_amo'); // Asegúrate de tener esta ruta
+                Navigator.pushNamed(context, '/nuevo_animo'); 
               },
               child: const Icon(Icons.add),
             ),
@@ -80,6 +84,7 @@ class PacienteScreen extends StatelessWidget {
                 child: TextButton(
                   onPressed: () {
                     authService.signOut();
+                    Navigator.pushReplacementNamed(context, '/login');
                   },
                   child: const Text('Cerrar Sesión'),
                 ),

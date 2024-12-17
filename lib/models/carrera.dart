@@ -1,7 +1,4 @@
-enum Sede {
-  concepcion,
-  chillan,
-}
+import 'sede.dart';
 
 class Carrera {
   final String nombre;
@@ -13,7 +10,7 @@ class Carrera {
   });
 }
 
-// Lista de Carreras por Sede
+
 final List<Carrera> carreras = [
   // Sede Concepción
   Carrera(nombre: 'Arquitectura', sede: Sede.concepcion),

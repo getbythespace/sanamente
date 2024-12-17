@@ -23,16 +23,16 @@ class MockService {
     },
   };
 
-  // Método para validar un RUT
+ 
   static Future<Map<String, String>?> validarRut(String rut) async {
-    // Simula una espera como si fuera una consulta real
+    
     await Future.delayed(const Duration(seconds: 1));
 
-    // Retorna los datos si el RUT está en la base simulada
+    
     return _mockDatabase[rut];
   }
 
-  // Método para agregar un usuario al Mock (si es necesario)
+
   static void agregarUsuario(Usuario usuario) {
     _mockDatabase[usuario.rut.toString()] = {
       'rut': usuario.rut.toString(),

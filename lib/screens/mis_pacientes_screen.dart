@@ -1,73 +1,94 @@
-// lib/screens/mis_pacientes_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/usuario.dart';
 import '../services/paciente_service.dart';
 import '../services/auth_service.dart';
+import '../models/rol.dart';
 
-class MisPacientesScreen extends StatelessWidget {
+class MisPacientesScreen extends StatefulWidget {
   const MisPacientesScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  _MisPacientesScreenState createState() => _MisPacientesScreenState();
+}
+
+class _MisPacientesScreenState extends State<MisPacientesScreen> {
+  List<Usuario> _pacientes = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPacientes();
+  }
+
+  void _loadPacientes() async {
     final pacienteService = Provider.of<PacienteService>(context, listen: false);
     final authService = Provider.of<AuthService>(context, listen: false);
 
-    return FutureBuilder<Usuario?>(
-      future: authService.currentUser,
-      builder: (context, snapshotUsuario) {
-        if (snapshotUsuario.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
+    try {
+      // Obtener el psicólogo autenticado
+      final Usuario? psicologo = await authService.currentUser;
+      if (psicologo == null || psicologo.rol != Rol.psicologo) {
+        throw Exception('El usuario no está autenticado o no es psicólogo.');
+      }
 
-        if (snapshotUsuario.hasError || !snapshotUsuario.hasData || snapshotUsuario.data == null) {
-          return const Center(child: Text('No se pudo obtener el psicólogo.'));
-        }
+      // Obtener pacientes asignados
+      List<Usuario> pacientes =
+          await pacienteService.getPacientesAsignados(psicologo.uid);
 
-        final Usuario psicologo = snapshotUsuario.data!;
+      setState(() {
+        _pacientes = pacientes;
+        _isLoading = false;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al cargar pacientes: $e')),
+      );
+      setState(() {
+        _pacientes = [];
+        _isLoading = false;
+      });
+    }
+  }
 
-        return FutureBuilder<List<Usuario>>(
-          future: pacienteService.getMisPacientes(psicologo.uid),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-            if (snapshot.hasError) {
-              return const Center(child: Text('Error al cargar pacientes.'));
-            }
+    if (_pacientes.isEmpty) {
+      return const Center(child: Text('No tienes pacientes asignados.'));
+    }
 
-            final pacientes = snapshot.data ?? [];
-
-            if (pacientes.isEmpty) {
-              return const Center(child: Text('No tienes pacientes vinculados.'));
-            }
-
-            return ListView.builder(
-              itemCount: pacientes.length,
-              itemBuilder: (context, index) {
-                final paciente = pacientes[index];
-                return Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.person),
-                    title: Text('${paciente.nombres} ${paciente.apellidos}'),
-                    subtitle: Text('Carrera: ${paciente.carrera}'),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.remove_red_eye),
-                      onPressed: () {
-                        Navigator.pushNamed(
-                          context,
-                          '/perfil_paciente',
-                          arguments: paciente,
-                        );
-                      },
-                    ),
-                  ),
-                );
-              },
-            );
-          },
+    return ListView.builder(
+      itemCount: _pacientes.length,
+      itemBuilder: (context, index) {
+        final paciente = _pacientes[index];
+        return Card(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: ListTile(
+            leading: const Icon(Icons.person, size: 40),
+            title: Text('${paciente.nombres} ${paciente.apellidos}'),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Correo: ${paciente.email}'),
+                Text('Carrera: ${paciente.carrera}'),
+                Text('Edad: ${paciente.edad}'),
+                Text('Campus: ${paciente.campus ?? 'No especificado'}'),
+              ],
+            ),
+            isThreeLine: true,
+            onTap: () {
+              Navigator.pushNamed(
+                context,
+                '/perfil_paciente',
+                arguments: paciente,
+              );
+            },
+          ),
         );
       },
     );

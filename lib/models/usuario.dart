@@ -1,7 +1,4 @@
-// lib\models\usuario.dart
-import 'rol.dart';
-import 'sede.dart';
-
+import 'rol.dart'; 
 class Usuario {
   final String uid;
   final String rut;
@@ -11,7 +8,7 @@ class Usuario {
   final Rol rol;
   final String? celular;
   final String? psicologoAsignado;
-  final String campus;
+  final String? campus;
   final String carrera;
   final int edad;
 
@@ -24,24 +21,24 @@ class Usuario {
     required this.rol,
     this.celular,
     this.psicologoAsignado,
-    required this.campus,
+    this.campus,
     required this.carrera,
     required this.edad,
   });
 
-  factory Usuario.fromMap(Map<String, dynamic> data) {
+  factory Usuario.fromMap(Map<String, dynamic> map) {
     return Usuario(
-      uid: data['uid'] ?? '',
-      rut: data['rut'] ?? '',
-      nombres: data['nombres'] ?? '',
-      apellidos: data['apellidos'] ?? '',
-      email: data['email'] ?? '',
-      rol: RolExtension.fromString(data['rol']) ?? Rol.paciente,
-      celular: data['celular'],
-      psicologoAsignado: data['psicologoAsignado'],
-      campus: data['campus'] ?? '',
-      carrera: data['carrera'] ?? '',
-      edad: data['edad'] ?? 0,
+      uid: map['uid'] ?? '',
+      rut: map['rut'] ?? '',
+      nombres: map['nombres'] ?? '',
+      apellidos: map['apellidos'] ?? '',
+      email: map['email'] ?? '',
+      rol: RolExtension.fromString(map['rol']) ?? Rol.paciente,
+      celular: map['celular'],
+      psicologoAsignado: map['psicologoAsignado'],
+      campus: map['campus'],
+      carrera: map['carrera'] ?? '',
+      edad: map['edad'] ?? 18,
     );
   }
 
@@ -55,7 +52,7 @@ class Usuario {
       'rol': rol.name,
       'celular': celular,
       'psicologoAsignado': psicologoAsignado,
-      'campus': campus,
+      'campus': campus, //dejar campus o sede?
       'carrera': carrera,
       'edad': edad,
     };

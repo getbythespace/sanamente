@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/encuesta.dart';
 import 'encuesta_repository.dart';
 
+
 class RealEncuestaRepository implements EncuestaRepository {
   final FirebaseFirestore _firestore;
 

@@ -1,5 +1,3 @@
-// lib/widgets/mood_chart_syncfusion.dart
-
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import '../models/encuesta.dart';
@@ -37,7 +35,7 @@ class MoodChartSyncfusion extends StatelessWidget {
         axisLine: const AxisLine(width: 0),
       ),
       tooltipBehavior: TooltipBehavior(enable: true),
-      series: <ChartSeries>[
+      series: <LineSeries<MoodData, DateTime>>[
         LineSeries<MoodData, DateTime>(
           dataSource: chartData,
           xValueMapper: (MoodData data, _) => data.fecha,
@@ -46,7 +44,7 @@ class MoodChartSyncfusion extends StatelessWidget {
           dataLabelSettings: const DataLabelSettings(isVisible: false),
           color: Colors.blue,
           width: 2,
-        )
+        ),
       ],
     );
   }

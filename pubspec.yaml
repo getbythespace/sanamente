@@ -13,11 +13,11 @@ dependencies:
   flutter:
     sdk: flutter
   # Firebase core para inicializar Firebase
-  firebase_core: ^2.10.0
+  firebase_core: ^3.9.0
   # Firebase Auth para autenticación
-  firebase_auth: ^4.8.0
+  firebase_auth: ^5.3.4
   # Firestore para almacenamiento de datos
-  cloud_firestore: ^4.8.0
+  cloud_firestore: ^5.6.0
 
 
   # Paquete para manejar archivos .env
@@ -29,28 +29,28 @@ dependencies:
   device_preview: ^1.0.0
 
 #http
-  http: ^0.13.4
+  http: ^1.2.2
 
   ## logger
-  logger: ^1.1.0
+  logger: ^2.5.0
 
   #provider
   provider: ^6.0.5
 
   ## fl chart
-  fl_chart: ^0.69.2
+  fl_chart: ^0.70.0
 
   ## FLUTTER LOCAL NOTIFICAIONES
-  flutter_local_notifications: ^12.0.4
+  flutter_local_notifications: ^18.0.1
 
   ##TIMEZONE
 
-  timezone: ^0.9.0
+  timezone: ^0.10.0
 
   ##table calendar
   table_calendar: ^3.0.9
 
-  syncfusion_flutter_charts: ^20.3.55
+  syncfusion_flutter_charts: ^28.1.35
 
   intl: ^0.19.0
 
@@ -59,7 +59,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   # Buenas prácticas de linting
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0
 
 flutter:
   uses-material-design: true

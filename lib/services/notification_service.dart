@@ -32,7 +32,7 @@ class NotificationService {
     final User? user = _auth.currentUser;
     if (user == null) return;
 
-    // Guardar el horario 
+    // Guardar el horario en Firestore
     await _firestore.collection('users').doc(user.uid).update({
       'horarioNotificacion': {
         'hora': time.hour,
@@ -55,9 +55,9 @@ class NotificationService {
     }
 
     await _flutterLocalNotificationsPlugin.zonedSchedule(
-      0,
-      'Registro de Ánimo',
-      'Es hora de registrar tu ánimo diario.',
+      0, // ID único para la notificación
+      'Registro de Ánimo', // Título de la notificación
+      'Es hora de registrar tu ánimo diario.', // Cuerpo de la notificación
       scheduledDate,
       const NotificationDetails(
         android: AndroidNotificationDetails(
@@ -68,10 +68,10 @@ class NotificationService {
           priority: Priority.high,
         ),
       ),
-      androidAllowWhileIdle: true,
       matchDateTimeComponents: DateTimeComponents.time, // Repite diariamente
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle, // Ajuste clave
     );
   }
 
@@ -79,7 +79,8 @@ class NotificationService {
     final User? user = _auth.currentUser;
     if (user == null) return const TimeOfDay(hour: 20, minute: 0);
 
-    DocumentSnapshot doc = await _firestore.collection('users').doc(user.uid).get();
+    DocumentSnapshot doc =
+        await _firestore.collection('users').doc(user.uid).get();
     if (doc.exists) {
       final data = doc.data() as Map<String, dynamic>;
       if (data.containsKey('horarioNotificacion')) {

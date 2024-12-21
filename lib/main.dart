@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
-import 'package:device_preview/device_preview.dart';
+// import 'package:device_preview/device_preview.dart'; // Temporalmente comentado para depuración
 
 import 'firebase_options.dart';
 
@@ -35,61 +35,72 @@ import 'screens/nuevo_animo_screen.dart';
 
 // Firebase
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
+    // Inicializar Firebase
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
 
+    // Configurar Firestore para usar el emulador
+    FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+    print('Firestore está usando el emulador en localhost:8080');
+
+    // Configurar Auth para usar el emulador
+    FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+    print('Firebase Auth está usando el emulador en localhost:9099');
+
     const bool usarMock = false;
 
     runApp(
-      DevicePreview(
-        enabled: false,
-        builder: (context) => MultiProvider(
-          providers: [
-            // Proveedor de IdentificacionRepository
-            Provider<IdentificacionRepository>(
-              create: (_) => usarMock
-                  ? MockIdentificacionRepository()
-                  : RealIdentificacionRepository(
-                      FirebaseFirestore.instance,
-                    ),
-            ),
+      // DevicePreview(
+      //   enabled: false, // Desactivado temporalmente para depuración
+      //   builder: (context) => MultiProvider(
+      MultiProvider(
+        providers: [
+          // Proveedor de IdentificacionRepository
+          Provider<IdentificacionRepository>(
+            create: (_) => usarMock
+                ? MockIdentificacionRepository()
+                : RealIdentificacionRepository(
+                    FirebaseFirestore.instance,
+                  ),
+          ),
 
-            // Proveedor de AuthService, que depende de IdentificacionRepository
-            Provider<AuthService>(
-              create: (context) => AuthService(
-                context.read<IdentificacionRepository>(),
-              ),
+          // Proveedor de AuthService, que depende de IdentificacionRepository
+          Provider<AuthService>(
+            create: (context) => AuthService(
+              context.read<IdentificacionRepository>(),
             ),
+          ),
 
-            //  servicios
-            Provider<NotificationService>(
-              create: (_) => NotificationService(),
-            ),
-            Provider<EncuestaService>(
-              create: (_) => EncuestaService(),
-            ),
-            Provider<PacienteService>(
-              create: (_) => PacienteService(),
-            ),
+          // Servicios
+          Provider<NotificationService>(
+            create: (_) => NotificationService(),
+          ),
+          Provider<EncuestaService>(
+            create: (_) => EncuestaService(),
+          ),
+          Provider<PacienteService>(
+            create: (_) => PacienteService(),
+          ),
 
-            // AdminService que depende de AuthService y IdentificacionRepository
-            ProxyProvider2<AuthService, IdentificacionRepository, AdminService>(
-              update:
-                  (context, authService, identificacionRepository, previous) =>
-                      AdminService(
-                authService: authService,
-                identificacionRepository: identificacionRepository,
-              ),
+          // AdminService que depende de AuthService y IdentificacionRepository
+          ProxyProvider2<AuthService, IdentificacionRepository, AdminService>(
+            update:
+                (context, authService, identificacionRepository, previous) =>
+                    AdminService(
+              authService: authService,
+              identificacionRepository: identificacionRepository,
             ),
-          ],
-          child: const MyApp(),
-        ),
+          ),
+        ],
+        child: const MyApp(),
       ),
+      // ),
     );
   } catch (e) {
     runApp(ErrorApp(error: e.toString()));
@@ -135,8 +146,8 @@ class MyApp extends StatelessWidget {
         '/paciente': (context) => const PacienteScreen(),
         '/nuevo_animo': (context) => const NuevoAnimoScreen(),
       },
-      builder: DevicePreview.appBuilder,
-      locale: DevicePreview.locale(context),
+      // builder: DevicePreview.appBuilder, // Desactivado temporalmente para depuración
+      // locale: DevicePreview.locale(context),
     );
   }
 }

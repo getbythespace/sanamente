@@ -66,5 +66,5 @@ flutter:
 
   # Sección para agregar archivos y assets estáticos
   assets:
-    - .env
+    # - .env
     - assets/identificacion_mock.json

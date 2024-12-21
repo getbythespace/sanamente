@@ -44,6 +44,7 @@ Aplicación web que facilita el **monitoreo anímico** de estudiantes-pacientes 
 
 - **Entornos de prueba**:  
   Windows 10 (Navegador Chrome)
+  Firebase Emulator Suite
 
 
 ---
@@ -51,8 +52,8 @@ Aplicación web que facilita el **monitoreo anímico** de estudiantes-pacientes 
 ## 🔧 **Versiones**
 | Componente                        | Versión         |
 |-----------------------------------|-----------------|
-| **Flutter**                       | 3.24.3          |
-| **Dart SDK**                      | 3.5.3           |
+| **Flutter**                       | 3.27.1          |
+| **Dart SDK**                      | 3.6.0           |
 | **Firebase CLI**                  | 13.29.1         |
 | **Node.js**                       | 18.16.1         |
 | **npm**                           | 9.5.1           |
@@ -61,38 +62,57 @@ Aplicación web que facilita el **monitoreo anímico** de estudiantes-pacientes 
 ### 📦 **Dependencias de Flutter**
 | Paquete                          | Versión         |
 |----------------------------------|-----------------|
-| **cloud_firestore**              | 4.17.5          |
-| **firebase_auth**                | 4.20.0          |
-| **firebase_core**                | 2.32.0          |
+| **cloud_firestore**              | 5.6.0           |
+| **cloud_firestore_platform_interface** | 6.6.0     |
+| **cloud_firestore_web**          | 4.4.0           |
+| **cupertino_icons**              | 1.0.8           |
 | **device_preview**               | 1.2.0           |
-| **shared_preferences**           | 2.3.3           |
-| **fl_chart**                     | 0.69.2          |
+| **device_frame**                 | 1.2.0           |
+| **firebase_auth**                | 5.3.4           |
+| **firebase_auth_platform_interface** | 7.4.10      |
+| **firebase_auth_web**            | 5.13.5          |
+| **firebase_core**                | 3.9.0           |
+| **firebase_core_platform_interface** | 5.4.0       |
+| **firebase_core_web**            | 2.19.0          |
+| **fl_chart**                     | 0.70.0          |
 | **flutter_dotenv**               | 5.2.1           |
-| **flutter_local_notifications**  | 12.0.4          |
-| **http**                         | 0.13.6          |
+| **flutter_lints**                | 5.0.0           |
+| **flutter_local_notifications**  | 18.0.1          |
+| **freezed_annotation**           | 2.4.4           |
+| **http**                         | 1.2.2           |
 | **intl**                         | 0.19.0          |
+| **json_annotation**              | 4.9.0           |
+| **logger**                       | 2.5.0           |
 | **provider**                     | 6.1.2           |
-| **syncfusion_flutter_charts**    | 20.4.54         |
+| **shared_preferences**           | 2.3.4           |
+| **syncfusion_flutter_charts**    | 28.1.35         |
 | **table_calendar**               | 3.1.3           |
-| **timezone**                     | 0.9.4           |
-| **logger**                       | 1.4.0           |
+| **timezone**                     | 0.10.0          |
 
----
-
-## 🔍 **Herramientas de Desarrollo**
-| Herramienta                       | Versión         |
+### 🔍 **Dependencias de Soporte**
+| Paquete                          | Versión         |
 |----------------------------------|-----------------|
-| **Flutter Doctor**               | Stable          |
+| **args**                         | 2.6.0           |
+| **collection**                   | 1.19.0          |
+| **clock**                        | 1.1.1           |
+| **dbus**                         | 0.7.10          |
+| **ffi**                          | 2.1.3           |
+| **flutter_web_plugins**          | 0.0.0           |
+| **material_color_utilities**     | 0.11.1          |
+| **meta**                         | 1.15.0          |
+| **path**                         | 1.9.0           |
+| **vector_math**                  | 2.1.4           |
+| **xml**                          | 6.5.0           |
+
+### 📂 **Herramientas Adicionales**
+| Herramienta                       | Versión         |
+|-----------------------------------|-----------------|
 | **Firebase CLI**                 | 13.29.1         |
-| **Dart DevTools**                | 2.37.3          |
 | **Docker Compose**               | 2.x.x           |
+| **Dart DevTools**                | 2.37.3          |
 
 ---
 
-
-# 🚀 **Pasos Iniciales**
-
-A continuación se detallan las instrucciones necesarias para obtener y ejecutar una copia del proyecto en una máquina local con **Windows 10/11**.
 
 ---
 
@@ -159,141 +179,10 @@ Antes de iniciar, asegúrate de tener las siguientes herramientas instaladas en 
    - Docker Compose ya viene incluido en **Docker Desktop**, por lo que no es necesario instalarlo manualmente.  
    - Si tienes una versión anterior, actualiza **Docker Desktop**.
 
----
-
-### **4. Flutter y Firebase CLI (para ejecutar la app web)**  
-
-1. **🔍 Verificar Flutter**:  
-   ```bash
-   flutter --version
-   ```  
-   Ejemplo de salida:  
-   ```plaintext
-   Flutter 3.24.3 • Dart 3.5.3
-   ```
-
-2. **🔍 Verificar Firebase CLI**:  
-   ```bash
-   firebase --version
-   ```  
-   Si no está instalado, puedes hacerlo con:  
-   ```bash
-   npm install -g firebase-tools
-   ```
-
----
-
-## 🚀 **Opciones para Configurar Firebase**
-
-Para ejecutar correctamente esta aplicación, puedes optar por dos métodos:
-
----
-
-### ⚙️ **Opción 1: Configuración Manual (Recomendada)**
-
-Sigue estos pasos detallados para crear y configurar un proyecto Firebase propio:
-
-1. **Crea un proyecto en Firebase** en [Firebase Console](https://console.firebase.google.com).  
-2. **Habilita Firestore y Authentication**.  
-3. **Registra tu app web** y obtén las credenciales (`firebase_options.dart` o claves manuales).  
-  `  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'apikey',
-    appId: 'appId',
-    messagingSenderId: 'messagingSenderId',
-    projectId: 'nombre/id proeyecto',
-    authDomain: 'nombre/id proeyecto."example".com',
-    storageBucket: 'nombre/id proeyecto.firebasestorage.app',
-  );`
-
-4. Configura las credenciales en los archivos de tu proyecto.
-
-> Para una guía detallada, consulta la sección **Configuración de Firebase** más abajo.
-
----
-
-### 🧪 **Opción 2: Uso de un Sandbox Preconfigurado**
-
-Si prefieres probar rápidamente la aplicación sin configurar Firebase manualmente, utiliza el **entorno Sandbox** que he preparado:
-
-- **Acceso mediante invitación**:  
-   - Recibirás una invitación a tu correo electrónico con acceso al entorno Sandbox de Firebase.
-
-- **Cómo ejecutar con el Sandbox**:  
-   1. Acepta la invitación en tu correo y accede a Firebase Console con tu cuenta Google.  
-   2. Descarga el archivo de configuración (`firebase_options_sandbox.dart`) desde el repositorio.  
-   3. Colócalo en la carpeta `lib/` de tu proyecto Flutter.  
-   4. Asegúrate de que tu código utilice este archivo de configuración:
-      ```dart
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
-      ```
-   5. Ejecuta la aplicación:
-      ```bash
-      flutter run -d chrome
-      ```
-
----
-
-### ⚠️ **Nota Importante**  
-- El **Sandbox** es un entorno temporal creado únicamente para pruebas.  
-- Se recomienda optar por la **configuración manual** para validar el proceso completo.
-
----
-
-## ✅ **Resumen**
-
-| Opción                     | Ventajas                            | Desventajas                    |
-|----------------------------|-------------------------------------|--------------------------------|
-| **Configuración Manual**   | Buenas prácticas, flexible          | Más pasos, toma más tiempo     |
-| **Sandbox con Invitación** | Rápido y fácil de probar, seguro    | Temporal, menos personalizado  |
-
----
-
-## 📩 **Cómo Acceder al Sandbox**
-
-- Proporciona tu dirección de correo electrónico y te enviaré una **invitación directa** al entorno Sandbox de Firebase.
-- Una vez aceptada, podrás usarlo sin necesidad de configurar Firebase desde cero.
-
----
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## 📥 **Clonar el Proyecto**
-
-Una vez que tengas todas las herramientas instaladas, clona el repositorio y accede a la carpeta del proyecto:
-
-```bash
-git clone https://github.com/getbythespace/sanamente.git
-cd sanamente
-```
-
----
-
-## 🔧 **Configuración Inicial**
-
- **Configurar las variables de entorno**:  
-   - Copia el archivo `.env.example` y renómbralo a `.env`.  
-   - Completa las variables necesarias con tus credenciales o configuración local.
-
-
-
-
-## 🐳 **Ejecutar el Proyecto Localmente con Docker**
+## 🐳 **Ejecutar el Proyecto Localmente con Docker y Firebase Emulator Suite**
 
 Para probar la aplicación localmente usando Docker, sigue estos pasos:
 
@@ -312,43 +201,76 @@ Para probar la aplicación localmente usando Docker, sigue estos pasos:
    ```
 
 3. **Construir y ejecutar el contenedor**:  
-   Ejecuta el siguiente comando:
+   Ejecutar con los siguientes comandos:
    ```bash
    docker-compose up --build
    ```
+   ```bash
+   docker-compose up -d
+   ```
+
+   Para desplegar los logs y tener una visualización más clara de los procesos, puedes usar:
+   ```bash
+   docker-compose logs -f
+   ```
+
 
 4. **Abrir la aplicación**:  
    Una vez el contenedor esté corriendo, abre tu navegador y dirígete a:
    ```
-   http://localhost:8080
+   http://127.0.0.1:5000/
    ```
+   Donde aparecerá el login de la aplicación
+
+   ```
+   http://127.0.0.1:4001/firestore
+   ```
+   Donde se podrán apreciar los cambios, registros y peticiones a la base de datos simulada
+
+
+   Nota: Es importante saber que para que pudiera probarse el programa vía docker fué necesario, implementar Firebase Emulator Suite, que es basicamente un simulador tanto de la aplicación como de la base de datos de Firebase (Firestore), para poder probar las funcionalidades del programa de manera local.
+
+
+
+
+## ✅ **Verificación**
+
+1. El contenedor debería construirse correctamente y poder ejecutarse.  
+2. La aplicación Flutter Web debe ser accesible en los url brindados a menos que tenga un choque de puertos los cuales se recomendaría dejar despejados para esta prueba.  
+
+
+
+## 🚀 **Lógica de prueba de las funcionalidades**
+
+1. En primer lugar debe crearse un usuario en el formulario de registro con un rut válido y sin "-", como default será registrado como usuario tipo "paciente" que es para quienes aplica el eje principal de la aplicación.
+
+      Ruts con el formato válido de ejemplo:
+         56033661
+         105855508
+         240343479
+
+2. Posterior a la creación de este usuario, debe cerrar cesión y dirigirse a la pestaña de Firestore que se abrió simultaneamente con la aplicación en la sección anterior.
+
+   ```
+   http://127.0.0.1:4001/firestore
+   ```
+   Aquí ya se podría evidenciar el registro del usuario exitosamente y cualquier petición o interacción con la base de datos, en el campo de rol del usuario (default: "paciente"), editamos y cambiamos por "admin" e ingresamos vía login con los datos recién creados "correo" y "contraseña" y esta vez, aparecerá el panel de administrador, donde aparecerían todos los usuarios registrados y botones para la creación, eliminación y edición de usuarios.
+
+
+2. Luego, para seguir con la lógica de la prueba de las funcionalidades, se debe crear al menos un paciente y al menos un psicólogo.
+
+3. Posterior al paso anterior, con los datos que se hayan ingresado en cada uno, podrá ingresar con el "correo" y "contraseña" de cada uno y se podrá apreciar las diferentes funcionalidades de cada uno de los roles, según la interfaz que tengan.
+
+4. Como recomendación, ingrese primero a la cuenta del psicólogo creado y ahí ya en su propia interfaz podrá vincular al o los pacientes creados (simulando la vinculación de un paciente a un psicólogo) y podrá ver los datos, además de habilitar a ese "paciente" a poder registrar su ánimo.
+
+5. Cuando ya el "Paciente X" haya sido vinculado con un psicólogo y este ingrese a su cuenta, podrá crear "Registros anímicos" los cuales a medida que se van creando, van generando un gráfico representativo, también podría modificar el horario de las notificaciones para responder el cuestionario anímico pero, como se mencionaba, también puede registrar las veces que quiera.
+
+6. Bajo esta lógica se cumpliría el objetivo principal de la aplicación, ya que se lograría la vinculación de un paciente a un psicólogo, el cual podrá monitorear el estado de anímo de sus pacientes.
 
 5. **Detener el contenedor**:  
    Si quieres detener la aplicación, presiona `Ctrl + C` o ejecuta:
    ```bash
    docker-compose down
    ```
-
----
-
-## ✅ **Verificación**
-
-1. El contenedor debería construirse correctamente.  
-2. La aplicación Flutter Web debe ser accesible en **localhost**.  
-3. El proceso es totalmente automático: **no 
-
-
-
-
-
-
-## 🚀 **Ejecutar la Aplicación**
-
-1. En el terminal ejecuta:  
-   ```plaintext
-   flutter run -d chrome
-   ```
-
-2. ¡Listo! debería desplegarse **Sanamente** en tu navegador.
 
 ---

@@ -51,7 +51,7 @@ bool validarRut(String rut) {
   }
 }
 
-// validarEmail
+// validar Email
 bool validarEmail(String email) {
   final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
   return emailRegex.hasMatch(email);

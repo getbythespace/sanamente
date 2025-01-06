@@ -45,20 +45,12 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
 
-    // Configurar Firestore para usar el emulador
-    FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
-    print('Firestore está usando el emulador en localhost:8080');
-
-    // Configurar Auth para usar el emulador
-    FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
-    print('Firebase Auth está usando el emulador en localhost:9099');
+    // No usar emuladores
+    print('Firebase está usando el entorno real.');
 
     const bool usarMock = false;
 
     runApp(
-      // DevicePreview(
-      //   enabled: false, // Desactivado temporalmente para depuración
-      //   builder: (context) => MultiProvider(
       MultiProvider(
         providers: [
           // Proveedor de IdentificacionRepository
@@ -100,12 +92,12 @@ void main() async {
         ],
         child: const MyApp(),
       ),
-      // ),
     );
   } catch (e) {
     runApp(ErrorApp(error: e.toString()));
   }
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
